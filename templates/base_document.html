@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ur' else 'ltr' }}">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ doc_title }}</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&display=swap');
+        
+        @page {
+            size: A4 portrait;
+            margin-top: {{ top_margin }};
+            margin-bottom: 0.35in;
+            margin-left: 0.7in;
+            margin-right: 0.7in;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            {% if lang == 'ur' %}
+            font-family: 'Noto Nastaliq Urdu', serif;
+            direction: rtl;
+            font-size: 9.8pt;
+            line-height: 1.76;
+            {% else %}
+            font-family: 'Times New Roman', Times, serif;
+            direction: ltr;
+            font-size: 10.4pt;
+            line-height: 1.48;
+            {% endif %}
+            text-align: justify;
+            text-justify: inter-word;
+            color: #000;
+            width: 100%;
+            position: relative;
+            background: #fff;
+            padding: 10px 15px;
+        }
+
+        .stamp-space-indicator {
+            border: 2px dashed #94a3b8;
+            background: #f8fafc;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            font-family: ui-sans-serif, system-ui, sans-serif;
+            text-align: center;
+            padding: 12px;
+        }
+
+        .stamp-space-indicator strong {
+            font-size: 10.5pt;
+            color: #0f766e;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .stamp-space-indicator span {
+            font-size: 8pt;
+            color: #64748b;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+            }
+            .stamp-space-indicator {
+                display: none !important;
+            }
+        }
+
+        {% if is_watermarked %}
+        .watermark-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .watermark-text {
+            transform: rotate(-32deg);
+            font-family: 'Arial Black', Impact, sans-serif;
+            font-size: 50pt;
+            font-weight: 900;
+            letter-spacing: 5px;
+            color: rgba(225, 29, 72, 0.08);
+            text-align: center;
+            line-height: 1.15;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .watermark-text span {
+            display: block;
+            font-size: 20pt;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-top: 8px;
+            color: rgba(225, 29, 72, 0.1);
+        }
+        {% endif %}
+        
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+        }
+        
+        h1 {
+            {% if lang == 'ur' %}
+            font-size: 13.8pt;
+            font-weight: 700;
+            {% else %}
+            font-size: 14pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            {% endif %}
+            display: inline-block;
+            border-bottom: 1.5px solid #000;
+            padding-bottom: 2px;
+            margin: 0;
+        }
+
+        .parties-statement {
+            margin-top: 6px;
+            margin-bottom: 8px;
+            text-align: justify;
+            text-justify: inter-word;
+            {% if lang == 'ur' %}
+            font-size: 9.5pt;
+            line-height: 1.74;
+            {% else %}
+            font-size: 10pt;
+            line-height: 1.44;
+            {% endif %}
+        }
+
+        .clause {
+            margin-bottom: 4px;
+            text-align: justify;
+            {% if lang == 'ur' %}
+            font-size: 9.3pt;
+            line-height: 1.7;
+            {% else %}
+            font-size: 9.8pt;
+            line-height: 1.38;
+            {% endif %}
+        }
+        
+        .closing-note {
+            margin-top: 6px;
+            margin-bottom: 6px;
+            font-weight: bold;
+            {% if lang == 'ur' %}
+            font-size: 9pt;
+            line-height: 1.6;
+            {% else %}
+            font-size: 9.5pt;
+            line-height: 1.35;
+            {% endif %}
+        }
+        
+        .signatures-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 6px;
+        }
+        
+        .sig-cell {
+            border: 1px dashed #333;
+            padding: 5px 7px;
+            text-align: center;
+            {% if lang == 'ur' %}
+            font-size: 8.8pt;
+            line-height: 1.45;
+            {% else %}
+            font-size: 9pt;
+            line-height: 1.3;
+            {% endif %}
+        }
+        
+        .thumb-box {
+            display: inline-block;
+            width: 55px;
+            height: 24px;
+            border: 1px solid #777;
+            line-height: 24px;
+            font-size: 7.2pt;
+            color: #444;
+            margin-top: 2px;
+        }
+
+        .verification-footer {
+            margin-top: 10px;
+            padding-top: 5px;
+            border-top: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-family: ui-sans-serif, system-ui, sans-serif;
+            font-size: 6.8pt;
+            color: #555;
+            direction: ltr !important;
+            text-align: left;
+        }
+
+        .verification-footer .qr-box img {
+            width: 42px;
+            height: 42px;
+        }
+    </style>
+</head>
+<body>
+    {% if is_watermarked %}
+    <div class="watermark-overlay">
+        <div class="watermark-text">
+            UNPAID DRAFT
+            <span>غیر مصدقہ پیش منظر</span>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if paper_mode == 'physical_stamp' %}
+    <div class="stamp-space-indicator" style="height: 3.2in;">
+        <strong>سرکاری سبز اسٹامپ پیپر (نوٹ) کے لیے 3.4 انچ مخصوص خالی جگہ</strong>
+        <span>[پرنٹر میں سبز اسٹامپ پیپر ڈالیں، تحریر اس نشان کے بالکل نیچے سے پرنٹ ہوگی]</span>
+    </div>
+    {% elif paper_mode == 'e_stamp' %}
+    <div class="stamp-space-indicator" style="height: 1.6in;">
+        <strong>ای-اسٹامپ شیٹ (ہیڈر و بارکوڈ) کے لیے 1.8 انچ مخصوص محفوظ خالی جگہ</strong>
+        <span>[ای-اسٹامپ کنٹینیویشن شیٹ کا بارکوڈ/ہیڈر محفوظ رہے گا اور تحریر اس نشان کے بالکل نیچے سے پرنٹ ہوگی]</span>
+    </div>
+    {% endif %}
+
+    <div class="header">
+        <h1>{{ doc_title }}</h1>
+    </div>
+    
+    <div class="parties-statement">
+        {% if partners and partners|length > 0 %}
+            {% if lang == 'ur' %}
+            منکہ ہم فریقین و شرکاء درج ذیل باہمی رضامندی و ہوش و حواس خمسہ یہ شراکت نامہ تحریر کرتے ہیں:
+            <br>
+            {% for p in partners %}
+            <strong>({{ loop.index }})</strong> مس مسمیٰ <strong>{{ p.name }}</strong> ولد <strong>{{ p.father }}</strong>، حامل قومی شناختی کارڈ نمبر <strong>{{ p.cnic }}</strong>، ساکن {{ p.address }}، (سرمایہ: مبلغ {{ p.capital }} روپے، حصہ منافع و نقصان: <strong>{{ p.share }}%</strong>)۔<br>
+            {% endfor %}
+            منکہ ہم تمام شرکاء برضا و رغبت خود، بلا جبر و اکراہ، روبرو گواہان شد درج ذیل شرائط پر متفق ہو کر یہ شراکت نامہ تحریر کرتے ہیں:
+            {% else %}
+            THIS DEED OF PARTNERSHIP is made and executed on this <strong>{{ date_str }}</strong> by and between the following partners:
+            <br>
+            {% for p in partners %}
+            <strong>({{ loop.index }})</strong> <strong>{{ p.name }}</strong> S/O <strong>{{ p.father }}</strong>, CNIC No. <strong>{{ p.cnic }}</strong>, resident of {{ p.address }} (Invested Capital: PKR {{ p.capital }}/-, Profit & Loss Share: <strong>{{ p.share }}%</strong>).<br>
+            {% endfor %}
+            WHEREAS all the partners have mutually agreed to enter into a partnership on the following terms and conditions:
+            {% endif %}
+        {% else %}
+            {% if lang == 'ur' %}
+            منکہ مس مسمیٰ <strong>{{ party1.name }}</strong> ولد <strong>{{ party1.father_name }}</strong>، 
+            قومیت پاکستانی، حامل قومی شناختی کارڈ نمبر <strong>{{ party1.cnic }}</strong>، 
+            ساکن {{ party1.address }} (جسے بعد ازیں اس دستاویز میں <strong>"{{ party1.role }}"</strong> پکارا جائے گا، فریق اول)۔
+            <br>
+            اور مس مسمیٰ <strong>{{ party2.name }}</strong> ولد <strong>{{ party2.father_name }}</strong>، 
+            قومیت پاکستانی، حامل قومی شناختی کارڈ نمبر <strong>{{ party2.cnic }}</strong>، 
+            ساکن {{ party2.address }} (جسے بعد ازیں اس دستاویز میں <strong>"{{ party2.role }}"</strong> پکارا جائے گا، فریق دوم)۔
+            <br>
+            منکہ فریقین بقائمی ہوش و حواس خمسہ، بلا جبر و اکراہ، برضا و رغبت خود، روبرو گواہان شد درج ذیل اقرار و شرائط پر متفق ہو کر یہ اقرار نامہ تحریر کرتے ہیں:
+            {% else %}
+            <strong>THIS AGREEMENT / DEED</strong> is executed on this <strong>{{ date_str }}</strong> by and between:
+            <br>
+            <strong>{{ party1.name }}</strong>, S/O <strong>{{ party1.father_name }}</strong>, 
+            bearing CNIC No. <strong>{{ party1.cnic }}</strong>, 
+            resident of {{ party1.address }} (hereinafter referred to as the <strong>"{{ party1.role }}"</strong>, of the FIRST PART);
+            <br>
+            <strong>AND</strong>
+            <br>
+            <strong>{{ party2.name }}</strong>, S/O <strong>{{ party2.father_name }}</strong>, 
+            bearing CNIC No. <strong>{{ party2.cnic }}</strong>, 
+            resident of {{ party2.address }} (hereinafter referred to as the <strong>"{{ party2.role }}"</strong>, of the SECOND PART).
+            <br>
+            <strong>WHEREAS</strong> both parties, of sound mind and memory, without any undue influence or coercion, covenant and agree as follows:
+            {% endif %}
+        {% endif %}
+    </div>
+    
+    <div class="clauses-container">
+        {% for clause in clauses %}
+        <div class="clause">
+            <strong>{{ 'شرط نمبر' if lang == 'ur' else 'Clause' }} {{ loop.index }}:</strong> {{ clause }}
+        </div>
+        {% endfor %}
+    </div>
+    
+    <div class="closing-note">
+        {% if lang == 'ur' %}
+        لہٰذا یہ دستاویز بقائمی ہوش و حواس خمسہ، روبرو گواہان باقاعدہ فہمائش کے بعد تحریر و دستخط کر دی گئی ہے تاکہ بوقتِ ضرورت سند رہے۔ المرقوم بتاریخ: {{ date_str }}
+        {% else %}
+        IN WITNESS WHEREOF, the parties hereto have set their hands, signatures, and thumb impressions on this deed on {{ date_str }} in presence of witnesses.
+        {% endif %}
+    </div>
+    
+    <table class="signatures-table">
+        {% if partners and partners|length > 0 %}
+            <tr>
+            {% for p in partners %}
+                <td class="sig-cell" style="width: {{ (100 / partners|length)|round(1) }}%;">
+                    <strong>{{ 'دستخط پارٹنر' if lang == 'ur' else 'Signature Partner' }} ({{ loop.index }})</strong><br>
+                    {{ p.name }}<br>
+                    <small>{{ p.cnic }}</small><br>
+                    <span class="thumb-box">{{ 'نشان انگوٹھا' if lang == 'ur' else 'Thumb' }}</span>
+                </td>
+                {% if loop.index % 3 == 0 and not loop.last %}
+                </tr><tr>
+                {% endif %}
+            {% endfor %}
+            </tr>
+        {% else %}
+            <tr>
+                <td class="sig-cell" style="width: 50%;">
+                    <strong>{{ 'دستخط' if lang == 'ur' else 'Signature:' }} {{ party1.role }}</strong><br>
+                    {{ 'شناختی کارڈ:' if lang == 'ur' else 'CNIC:' }} {{ party1.cnic }} &nbsp;|&nbsp; 
+                    <span class="thumb-box">{{ 'نشان انگوٹھا' if lang == 'ur' else 'Thumb' }}</span>
+                </td>
+                <td class="sig-cell" style="width: 50%;">
+                    <strong>{{ 'دستخط' if lang == 'ur' else 'Signature:' }} {{ party2.role }}</strong><br>
+                    {{ 'شناختی کارڈ:' if lang == 'ur' else 'CNIC:' }} {{ party2.cnic }} &nbsp;|&nbsp; 
+                    <span class="thumb-box">{{ 'نشان انگوٹھا' if lang == 'ur' else 'Thumb' }}</span>
+                </td>
+            </tr>
+        {% endif %}
+        <tr>
+            <td class="sig-cell" style="width: 50%;">
+                {% if witness1 and witness1.name %}
+                <strong>{{ 'گواہ شد (1):' if lang == 'ur' else 'Witness 1:' }}</strong> {{ witness1.name }} 
+                {{ 'ولد' if lang == 'ur' else 'S/O' }} {{ witness1.father_name }}<br>
+                {{ 'شناختی کارڈ:' if lang == 'ur' else 'CNIC:' }} {{ witness1.cnic }} &nbsp;|&nbsp; 
+                {{ 'دستخط:' if lang == 'ur' else 'Sign:' }} _________________
+                {% else %}
+                <strong>{{ 'گواہ شد (1):' if lang == 'ur' else 'Witness 1:' }}</strong> ____________________ 
+                {{ 'ولد:' if lang == 'ur' else 'S/O:' }} _________<br>
+                {{ 'شناختی کارڈ:' if lang == 'ur' else 'CNIC:' }} __________________ &nbsp;|&nbsp; 
+                {{ 'دستخط:' if lang == 'ur' else 'Sign:' }} ____________
+                {% endif %}
+            </td>
+            <td class="sig-cell" style="width: 50%;">
+                {% if witness2 and witness2.name %}
+                <strong>{{ 'گواہ شد (2):' if lang == 'ur' else 'Witness 2:' }}</strong> {{ witness2.name }} 
+                {{ 'ولد' if lang == 'ur' else 'S/O' }} {{ witness2.father_name }}<br>
+                {{ 'شناختی کارڈ:' if lang == 'ur' else 'CNIC:' }} {{ witness2.cnic }} &nbsp;|&nbsp; 
+                {{ 'دستخط:' if lang == 'ur' else 'Sign:' }} _________________
+                {% else %}
+                <strong>{{ 'گواہ شد (2):' if lang == 'ur' else 'Witness 2:' }}</strong> ____________________ 
+                {{ 'ولد:' if lang == 'ur' else 'S/O:' }} _________<br>
+                {{ 'شناختی کارڈ:' if lang == 'ur' else 'CNIC:' }} __________________ &nbsp;|&nbsp; 
+                {{ 'دستخط:' if lang == 'ur' else 'Sign:' }} ____________
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <div class="verification-footer">
+        <div style="flex: 1;">
+            <strong>StampSahulat Digital Legal Repository</strong><br>
+            Certificate Ref: #SS-{{ record_id }} | Authenticated Judicial Draft<br>
+            Verification URL: {{ verify_url }}
+        </div>
+        {% if qr_base64 %}
+        <div class="qr-box" style="margin-left: 10px;">
+            <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Verification">
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>

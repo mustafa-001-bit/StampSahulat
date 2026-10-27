@@ -1,0 +1,1298 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl" id="htmlRoot" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StampSahulat - پاکستان کا پہلا خودکار ڈیجیٹل قانونی پورٹل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .font-urdu { font-family: 'Noto Nastaliq Urdu', serif; }
+        .font-en { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        * { box-sizing: border-box; }
+        input, select, textarea { font-family: ui-sans-serif, system-ui, sans-serif; }
+        .clause-editor-textarea { min-height: 56px; resize: vertical; }
+        .modal-active { display: flex !important; }
+        .secret-trigger { cursor: pointer; user-select: none; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-urdu antialiased selection:bg-emerald-500 selection:text-white">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-3 secret-trigger" id="secretAdminTrigger" title="StampSahulat Portal">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-700 to-emerald-950 flex items-center justify-center shadow-md border border-emerald-500/30 shrink-0">
+                    <svg class="w-6 h-6 text-emerald-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2a4 4 0 0 0-4 4v1H6a2 2 0 0 0-2 2v2a6 6 0 0 0 12 0V9a2 2 0 0 0-2-2h-2V6a4 4 0 0 0-4-4z"/>
+                        <path d="M4 17h16"/>
+                        <path d="M6 21h12"/>
+                        <path d="m9 13 2 2 4-4" stroke="#fbbf24" stroke-width="2.5"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-black text-slate-900 tracking-tight font-sans">Stamp<span class="text-emerald-700">Sahulat</span></span>
+                    <span id="headerSubText" class="text-[10px] font-bold text-slate-500 font-urdu -mt-1">پاکستان کا پہلا خودکار قانونی ڈرافٹنگ پورٹل</span>
+                </div>
+            </div>
+
+            {% if not current_user %}
+            <nav class="hidden md:flex items-center gap-6 font-sans text-xs font-bold text-slate-600">
+                <a href="#why-us" id="navLinkWhy" class="hover:text-emerald-700 transition">ہمیں کیوں چنیں؟</a>
+                <a href="#how-it-works" id="navLinkHow" class="hover:text-emerald-700 transition">طریقہ کار</a>
+                <a href="#pricing" id="navLinkPricing" class="hover:text-emerald-700 transition">پلانز و فیس</a>
+                <a href="#legal-notice" id="navLinkNotice" class="hover:text-emerald-700 transition">قانونی وضاحت</a>
+            </nav>
+            {% endif %}
+            
+            <div class="flex items-center gap-3">
+                <div class="bg-slate-100 p-1 rounded-xl flex items-center border border-slate-300 font-sans text-xs">
+                    <button type="button" id="btnLangUr" onclick="switchLang('ur')" class="px-3 py-1 rounded-lg font-bold transition bg-white shadow text-emerald-800">
+                        اردو
+                    </button>
+                    <button type="button" id="btnLangEn" onclick="switchLang('en')" class="px-3 py-1 rounded-lg font-bold transition text-slate-600">
+                        English
+                    </button>
+                </div>
+
+                {% if current_user %}
+                <a href="/history" id="historyLinkBtn" class="inline-flex items-center gap-1.5 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-300 font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-sm font-sans">
+                    <span>📁</span>
+                    <span id="navHistoryText">محفوظ ریکارڈ</span>
+                </a>
+                <div class="flex items-center gap-2 bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl font-sans text-xs">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="font-bold text-emerald-900">{{ current_user.full_name }}</span>
+                    <span class="text-[10px] bg-emerald-200 text-emerald-900 font-bold px-1.5 py-0.5 rounded uppercase">{{ current_user.account_type }}</span>
+                    <a href="/logout" id="navLogoutText" class="text-red-600 hover:text-red-800 font-bold mr-1">خروج</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    {% if not current_user %}
+    <!-- GATE 1: LANDING PAGE -->
+    <main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center pt-2">
+            <div class="lg:col-span-7 space-y-4 text-right" id="heroLeftCol">
+                <div class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 border border-emerald-300 px-3.5 py-1.5 rounded-full text-xs font-bold font-sans">
+                    <span>🇵🇰</span>
+                    <span id="heroBadgeText">Pakistan's 1st Automated Legal Stamp Drafting Portal</span>
+                </div>
+
+                <h1 id="heroHeading" class="text-2xl md:text-4xl font-bold text-slate-900 leading-tight">
+                    مہنگے پیٹرول، تپتی دھوپ اور کچہری کے چکروں سے بچیں—معاہدہ آن لائن تیار کریں!
+                </h1>
+
+                <p id="heroSubHeading" class="text-xs md:text-sm text-slate-600 leading-relaxed font-sans">
+                    آج کے مہنگے پیٹرول میں کچہری جانے، پارکنگ ڈھونڈنے اور منشی کے پاس گھنٹوں بیٹھنے میں 800 روپے اور آدھا دن ضائع کرنے کی ضرورت نہیں۔ گھر یا دکان میں بیٹھ کر موبائل پر اپنے معاہدے کا پرفیکٹ مسودہ تیار کریں، دوسری پارٹی کو واٹس ایپ پر دکھا کر مطمئن کریں اور پھر سیدھا پرنٹ نکالیں۔
+                </p>
+
+                <div class="grid grid-cols-3 gap-3 pt-1 text-center font-sans">
+                    <div class="bg-white border border-slate-200 p-3 rounded-xl shadow-sm">
+                        <span class="text-xl block mb-1">⛽</span>
+                        <strong id="pillar1Title" class="text-xs text-slate-800 block">پیٹرول و وقت کی بچت</strong>
+                        <span id="pillar1Sub" class="text-[10px] text-slate-500">گھر بیٹھے 60 سیکنڈز</span>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-3 rounded-xl shadow-sm">
+                        <span class="text-xl block mb-1">📲</span>
+                        <strong id="pillar2Title" class="text-xs text-slate-800 block">پیشگی معائنہ</strong>
+                        <span id="pillar2Sub" class="text-[10px] text-slate-500">دوسری پارٹی کو شیئر کریں</span>
+                    </div>
+                    <div class="bg-white border border-slate-200 p-3 rounded-xl shadow-sm">
+                        <span class="text-xl block mb-1">🛡️</span>
+                        <strong id="pillar3Title" class="text-xs text-slate-800 block">صفر پیپر ضیاع</strong>
+                        <span id="pillar3Sub" class="text-[10px] text-slate-500">غلطی کا کوئی خدشہ نہیں</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Registration Card -->
+            <div class="lg:col-span-5 bg-white rounded-2xl shadow-xl border border-slate-200 p-6">
+                <div class="flex border-b border-slate-200 mb-5 font-sans text-xs">
+                    <button type="button" id="tabRegisterBtn" onclick="switchFrontAuth('register')" class="flex-1 py-2 font-bold text-emerald-800 border-b-2 border-emerald-700">
+                        نیا اکاؤنٹ بنائیں (Sign Up)
+                    </button>
+                    <button type="button" id="tabLoginBtn" onclick="switchFrontAuth('login')" class="flex-1 py-2 font-bold text-slate-500">
+                        پہلے سے اکاؤنٹ ہے؟ (Login)
+                    </button>
+                </div>
+
+                <form id="frontRegisterForm" onsubmit="handleFrontRegister(event)" class="space-y-3 font-sans text-xs">
+                    <div>
+                        <label id="lblAccType" class="block font-bold text-slate-700 mb-1.5">اکاؤنٹ کی قسم منتخب کریں:</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <label class="flex items-center gap-2 p-2.5 border rounded-xl cursor-pointer bg-slate-50 hover:bg-emerald-50/50">
+                                <input type="radio" name="reg_account_type" value="personal" checked class="text-emerald-600">
+                                <div>
+                                    <strong id="optPersonalTitle" class="block text-slate-800">ذاتی استعمال</strong>
+                                    <span id="optPersonalSub" class="text-[10px] text-slate-500">500 روپے فی دستاویز</span>
+                                </div>
+                            </label>
+                            <label class="flex items-center gap-2 p-2.5 border rounded-xl cursor-pointer bg-slate-50 hover:bg-emerald-50/50">
+                                <input type="radio" name="reg_account_type" value="business" class="text-emerald-600">
+                                <div>
+                                    <strong id="optBizTitle" class="block text-emerald-900">بزنس / شو روم</strong>
+                                    <span id="optBizSub" class="text-[10px] text-emerald-700">5,000/ماہ (60 پرنٹس)</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label id="lblRegName" class="block font-bold text-slate-700 mb-1">مکمل نام یا کاروباری نام:</label>
+                        <input type="text" id="frontRegName" placeholder="محمد احمد خان / الرحمان موٹرز" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-emerald-600">
+                    </div>
+                    <div>
+                        <label id="lblRegEmail" class="block font-bold text-slate-700 mb-1">ای میل ایڈریس:</label>
+                        <input type="email" id="frontRegEmail" placeholder="name@example.com" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-emerald-600">
+                    </div>
+                    <div>
+                        <label id="lblRegPhone" class="block font-bold text-slate-700 mb-1">موبائل / واٹس ایپ نمبر:</label>
+                        <input type="text" id="frontRegPhone" placeholder="0300-1234567" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-emerald-600">
+                    </div>
+                    <div>
+                        <label id="lblRegPass" class="block font-bold text-slate-700 mb-1">پاس ورڈ بنائیں:</label>
+                        <input type="password" id="frontRegPassword" placeholder="کم از کم 6 ہندسے" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-emerald-600">
+                    </div>
+
+                    <div class="p-2.5 bg-amber-50/80 border border-amber-300 rounded-xl">
+                        <label class="flex items-start gap-2 cursor-pointer">
+                            <input type="checkbox" id="frontRegTerms" required class="mt-0.5 h-4 w-4 text-emerald-600 rounded">
+                            <span id="termsConsentText" class="text-[11px] text-slate-700 leading-relaxed font-sans">
+                                میں تصدیق کرتا ہوں کہ تمام کوائف درست ہیں۔ میں نے <button type="button" onclick="openModal('termsModal')" class="text-emerald-700 font-bold underline">قوانین و ضوابط (Terms of Service)</button> تسلیم کر لیے ہیں۔
+                            </span>
+                        </label>
+                    </div>
+
+                    <button type="submit" id="btnFrontReg" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl transition shadow-md text-sm">
+                        اکاؤنٹ بنائیں و مسودہ تیار کریں
+                    </button>
+                </form>
+
+                <form id="frontLoginForm" onsubmit="handleFrontLogin(event)" class="space-y-3.5 font-sans text-xs hidden">
+                    <div>
+                        <label id="lblLogEmail" class="block font-bold text-slate-700 mb-1">ای میل ایڈریس:</label>
+                        <input type="email" id="frontLoginEmail" placeholder="name@example.com" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-emerald-600">
+                    </div>
+                    <div>
+                        <label id="lblLogPass" class="block font-bold text-slate-700 mb-1">پاس ورڈ:</label>
+                        <input type="password" id="frontLoginPassword" required class="w-full border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-emerald-600">
+                    </div>
+
+                    <button type="submit" id="btnFrontLogin" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 rounded-xl transition shadow-md text-sm">
+                        لاگ ان کریں
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Section 1: Why Us (#why-us) -->
+        <section id="why-us" class="border-t border-slate-200 pt-10 space-y-8 font-sans">
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <span id="secBadgeTruth" class="text-xs font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full">
+                    شفاف قانونی رہنمائی
+                </span>
+                <h2 id="secTitleTruth" class="text-xl md:text-2xl font-bold text-slate-900 font-urdu">
+                    اسٹامپ آفس کے چکروں سے پہلے پورٹل کے استعمال کا اصل فائدہ
+                </h2>
+                <p id="secSubTruth" class="text-xs text-slate-500">
+                    کسی بھی غلط فہمی سے پاک: پورٹل کا مقصد آپ کا وقت، پیٹرول اور مہنگے اسٹامپ پیپر کو ضائع ہونے سے بچانا ہے۔
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-2.5 shadow-sm text-right">
+                    <span class="text-2xl block">📲</span>
+                    <strong class="text-sm text-slate-800 block font-urdu" id="adv1Title">پیشگی ڈیجیٹل معائنہ</strong>
+                    <p class="text-xs text-slate-600 leading-relaxed" id="adv1Desc">
+                        کچہری جا کر اسٹامپ خریدنے سے پہلے، اپنے موبائل پر مکمل قانونی ڈرافٹ تیار کر کے دوسری پارٹی کو واٹس ایپ پر دکھائیں تاکہ دونوں فریق تمام شرائط پر مکمل مطمئن ہو جائیں۔
+                    </p>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-2.5 shadow-sm text-right">
+                    <span class="text-2xl block">🚫</span>
+                    <strong class="text-sm text-slate-800 block font-urdu" id="adv2Title">مہنگے اسٹامپ کا صفر ضیاع</strong>
+                    <p class="text-xs text-slate-600 leading-relaxed" id="adv2Desc">
+                        عام طور پر ٹائپنگ کی معمولی غلطی پر 1,200 یا 3,000 روپے کا سرکاری اسٹامپ کینسل ہو جاتا ہے۔ یہاں غلطی کے امکانات صفر ہیں کیونکہ سب کچھ پہلے سے چیک ہو جاتا ہے۔
+                    </p>
+                </div>
+
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-2.5 shadow-sm text-right">
+                    <span class="text-2xl block">⚖️</span>
+                    <strong class="text-sm text-slate-800 block font-urdu" id="adv3Title">سنگل پیج کورٹ سیٹنگ</strong>
+                    <p class="text-xs text-slate-600 leading-relaxed" id="adv3Desc">
+                        اوپر سرکاری نوٹ کے لیے 3.4 انچ اور ای-اسٹامپ کے لیے 1.8 انچ خالی جگہ سافٹ ویئر خودکار چھوڑتا ہے تاکہ آپ کا پرنٹر تحریر کو بالکل نوٹ کے نیچے سے قانونی ترتیب میں پرنٹ کرے۔
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: How it works (#how-it-works) -->
+        <section id="how-it-works" class="border-t border-slate-200 pt-10 space-y-6 font-sans">
+            <div class="text-center max-w-xl mx-auto space-y-2">
+                <span id="badgeHow" class="text-xs font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full">
+                    آسان 3 مراحل
+                </span>
+                <h3 id="titleHow" class="text-lg md:text-xl font-bold text-slate-900 font-urdu">
+                    یہ پورٹل کس طرح کام کرتا ہے؟
+                </h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 text-center">
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="w-9 h-9 rounded-full bg-emerald-700 text-white font-bold text-xs flex items-center justify-center mx-auto">1</div>
+                    <strong id="step1Title" class="text-xs text-slate-800 block font-urdu">موبائل پر ڈرافٹ تیار کریں</strong>
+                    <p id="step1Desc" class="text-xs text-slate-500 leading-relaxed">فریقین کے نام، شناختی کارڈ اور مخصوص شرائط درج کریں اور لائیو پیش منظر دیکھیں۔</p>
+                </div>
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="w-9 h-9 rounded-full bg-emerald-700 text-white font-bold text-xs flex items-center justify-center mx-auto">2</div>
+                    <strong id="step2Title" class="text-xs text-slate-800 block font-urdu">دوسری پارٹی سے تصدیق</strong>
+                    <p id="step2Desc" class="text-xs text-slate-500 leading-relaxed">اسٹامپ خریدنے سے پہلے مسودہ دوسری پارٹی کو واٹس ایپ پر شیئر کریں اور باہمی رضامندی لیں۔</p>
+                </div>
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-sm space-y-2">
+                    <div class="w-9 h-9 rounded-full bg-emerald-700 text-white font-bold text-xs flex items-center justify-center mx-auto">3</div>
+                    <strong id="step3Title" class="text-xs text-slate-800 block font-urdu">پرنٹ و قانونی توثیق</strong>
+                    <p id="step3Desc" class="text-xs text-slate-500 leading-relaxed">QR کوڈ والا کلین پی ڈی ایف ڈاؤن لوڈ کر کے اپنے اسٹامپ پیپر پر پرنٹ کریں اور اوتھ کمشنر سے دستخط کروائیں۔</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Pricing (#pricing) -->
+        <section id="pricing" class="border-t border-slate-200 pt-10 space-y-6 font-sans">
+            <div class="text-center max-w-xl mx-auto space-y-2">
+                <span id="badgePricing" class="text-xs font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-3 py-1 rounded-full">
+                    فیس و سبسکرپشن
+                </span>
+                <h3 id="plansTitle" class="text-xl md:text-2xl font-bold text-slate-900 font-urdu">ہمارے دو شفاف پلانز:</h3>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="border border-slate-200 bg-white rounded-2xl p-6 space-y-4 text-right shadow-sm">
+                    <span id="cardPersonalBadge" class="text-xs bg-slate-100 font-bold px-2.5 py-1 rounded-md text-slate-700 inline-block">ذاتی استعمال (Personal)</span>
+                    <h4 id="cardPersonalTitle" class="text-lg font-bold text-slate-900 font-urdu">عام شہریوں کے لیے</h4>
+                    <p id="cardPersonalDesc" class="text-xs text-slate-500 leading-relaxed">اگر آپ کبھی کبھار کوئی گاڑی، مکان کا کرایہ نامہ یا بیعانہ بنا رہے ہیں۔</p>
+                    <div class="text-3xl font-black text-emerald-800 font-sans">Rs. 500 <span id="cardPersonalPer" class="text-xs font-normal text-slate-500">/ فی دستاویز</span></div>
+                    <ul class="text-xs text-slate-600 space-y-2 pt-3 border-t">
+                        <li id="pFeat1">✓ سنگل ڈاکومنٹ لائیو پیش منظر</li>
+                        <li id="pFeat2">✓ عدالتی معیار کا کسٹم مسودہ</li>
+                        <li id="pFeat3">✓ QR کوڈ تصدیق شدہ کلین پی ڈی ایف</li>
+                    </ul>
+                </div>
+
+                <div class="border-2 border-emerald-500 bg-emerald-50/50 rounded-2xl p-6 space-y-4 text-right shadow-sm relative overflow-hidden">
+                    <span id="cardBizBadge" class="text-xs bg-emerald-600 font-bold px-2.5 py-1 rounded-md text-white inline-block">بزنس پاس (Showrooms & Dealers)</span>
+                    <h4 id="cardBizTitle" class="text-lg font-bold text-emerald-950 font-urdu">کاروباری اداروں و ڈیلرز کے لیے</h4>
+                    <p id="cardBizDesc" class="text-xs text-slate-600 leading-relaxed">پراپرٹی ڈیلرز، کار شو رومز، رینٹ اے کار اور بلڈرز کے باقاعدہ استعمال کے لیے۔</p>
+                    <div class="text-3xl font-black text-emerald-800 font-sans">Rs. 5,000 <span id="cardBizPer" class="text-xs font-normal text-slate-500">/ 30 دن کی ممبرشپ</span></div>
+                    <ul class="text-xs text-emerald-950 space-y-2 pt-3 border-t border-emerald-200 font-bold">
+                        <li id="bFeat1">★ 30 دن کی میعاد (ماہانہ 60 پرنٹس کا کوٹہ)</li>
+                        <li id="bFeat2">★ منصفانہ استعمال: روزانہ زیادہ سے زیادہ 2 پرنٹس</li>
+                        <li id="bFeat3">★ فی دستاویز فیس سے نجات، فوری کلین ڈاؤن لوڈ</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Legal Notice (#legal-notice) -->
+        <section id="legal-notice" class="border-t border-slate-200 pt-8 pb-4 font-sans">
+            <div class="bg-slate-900 text-white rounded-2xl p-6 shadow-lg space-y-2 text-right">
+                <h3 class="font-bold text-sm text-emerald-400 font-urdu" id="boxRealityTitle">
+                    قانونی وضاحت برائے اسٹامپ ڈیوٹی و اوتھ کمشنر:
+                </h3>
+                <p class="text-xs text-slate-300 leading-relaxed" id="boxRealityDesc">
+                    StampSahulat ایک خودکار ڈرافٹنگ سافٹ ویئر ہے۔ حکومت کی مقررہ اسٹامپ ڈیوٹی اور اوتھ کمشنر کی باقاعدہ تصدیق آپ کو اپنے متعلقہ ضلع کے مروجہ قوانین کے مطابق ہی کروانی ہوتی ہے۔ ہمارا پلیٹ فارم آپ کو وکیلوں اور منشیوں کے پاس گھنٹوں بیٹھ کر تحریر بنوانے کے جھنجھٹ سے مکمل آزاد کرتا ہے۔
+                </p>
+            </div>
+        </section>
+    </main>
+
+    {% else %}
+    <!-- GATE 2: AUTHENTICATED WORKSPACE -->
+    <main class="max-w-6xl mx-auto px-4 py-8">
+        {% if current_user.account_type == 'business' %}
+            {% if is_biz_active %}
+            <div class="bg-emerald-100 border border-emerald-300 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-sans">
+                <div class="flex items-center gap-2">
+                    <span class="text-xl">🌟</span>
+                    <div>
+                        <strong class="text-emerald-950 block text-sm">بزنس ممبرشپ فعال ہے (Business Plan Active)</strong>
+                        <span class="text-emerald-800">
+                            آج کے پرنٹس: <strong>{{ prints_today }}/2</strong> | اس ماہ کے پرنٹس: <strong>{{ prints_month }}/60</strong> | میعاد تا: <strong>{{ current_user.subscription_end[:10] }}</strong>
+                        </span>
+                    </div>
+                </div>
+                <span class="bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl whitespace-nowrap">ایکٹو ممبر</span>
+            </div>
+            {% else %}
+            <div class="bg-amber-50 border border-amber-300 rounded-2xl p-4 mb-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-sans">
+                <div>
+                    <strong class="text-amber-950 block text-sm">کاروباری ممبرشپ (5,000 روپے / 60 پرنٹس) ایکٹو نہیں ہے</strong>
+                    <span class="text-slate-600">30 دن کے کوٹے کے لیے 5,000 روپے کی رسید اپلوڈ کر کے ممبرشپ فعال کروائیں۔</span>
+                </div>
+                <button type="button" onclick="openModal('bizSubModal')" class="bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-4 py-2 rounded-xl transition whitespace-nowrap">
+                    5,000 ممبرشپ رسید اپلوڈ کریں
+                </button>
+            </div>
+            {% endif %}
+        {% endif %}
+
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-10">
+            <form id="docForm" onsubmit="handleDraftCreation(event)" class="space-y-8">
+                <input type="hidden" name="lang" id="formLangInput" value="ur">
+                <input type="hidden" name="final_clauses_json" id="finalClausesJson" value="[]">
+                <input type="hidden" name="partners_json" id="partnersJson" value="">
+
+                <div class="bg-amber-50/80 border border-amber-300 rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="text-lg">⚖️</span>
+                        <span id="dateBannerText" class="text-sm font-bold text-amber-950">
+                            تاریخِ تحریر معاہدہ (المرقوم بتاریخ خودکار عدالتی اندراج):
+                        </span>
+                    </div>
+                    <span id="dateValue" class="text-base font-bold text-emerald-900 bg-white border border-amber-200 px-5 py-1.5 rounded-lg shadow-sm font-sans">
+                        {{ today_urdu_date }}
+                    </span>
+                </div>
+
+                <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-5">
+                    <label id="paperTypeHeading" class="block font-bold text-emerald-950 text-base mb-3">اسٹامپ پیپر کی نوعیت منتخب کریں:</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <label class="flex items-center space-x-3 space-x-reverse cursor-pointer bg-white p-4 rounded-xl border border-emerald-300 hover:border-emerald-500 hover:shadow-md transition">
+                            <input type="radio" name="paper_mode" value="physical_stamp" checked class="h-5 w-5 text-emerald-600">
+                            <div class="pr-2">
+                                <span id="optPhysTitle" class="font-bold block text-sm text-slate-900">سرکاری سبز اسٹامپ پیپر (نوٹ والا)</span>
+                                <span id="optPhysSub" class="text-xs text-slate-500 mt-0.5 block">اوپر 3.4 انچ خالی جگہ پرنٹنگ کے لیے محفوظ رہے گی</span>
+                            </div>
+                        </label>
+                        <label class="flex items-center space-x-3 space-x-reverse cursor-pointer bg-white p-4 rounded-xl border border-emerald-300 hover:border-emerald-500 hover:shadow-md transition">
+                            <input type="radio" name="paper_mode" value="e_stamp" class="h-5 w-5 text-emerald-600">
+                            <div class="pr-2">
+                                <span id="optEstampTitle" class="font-bold block text-sm text-slate-900">ای-اسٹامپ پیپر (E-Stamp Punjab/Sindh/KP)</span>
+                                <span id="optEstampSub" class="text-xs text-slate-500 mt-0.5 block">اوپر 1.8 انچ خالی جگہ ای-اسٹامپ بارکوڈ و ہیڈر کے لیے محفوظ رہے گی</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label id="lblCategory" class="block font-bold text-sm text-slate-700 mb-2">دستاویز کی کیٹیگری (فلٹر):</label>
+                        <select id="categorySelect" onchange="filterByCategory()" class="w-full border border-slate-300 rounded-xl p-3 text-sm bg-slate-50 font-bold focus:bg-white focus:outline-emerald-600 shadow-sm font-sans transition">
+                            <option value="all">تمام کیٹیگریز (All Categories)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label id="lblTemplate" class="block font-bold text-sm text-slate-700 mb-2">معاہدہ / دستاویز کی قسم منتخب کریں:</label>
+                        <select id="templateSelect" name="template_key" onchange="updateFormFields(this.value)" class="w-full border border-emerald-400 rounded-xl p-3 text-sm bg-emerald-50/40 font-bold text-emerald-950 focus:bg-white focus:outline-emerald-600 shadow-sm font-sans transition" required>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Multi-Partners Builder -->
+                <div id="partnershipPartnersWrapper" class="hidden border border-emerald-300 bg-emerald-50/50 rounded-xl p-5">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-emerald-200 pb-3 mb-4">
+                        <div>
+                            <h4 id="partnerHeading" class="font-bold text-base text-emerald-950">شراکت داروں (Partners) کی کل تعداد منتخب کریں:</h4>
+                            <p id="partnerSub" class="text-xs text-slate-500 mt-0.5">2 سے لے کر 6 شرکاء کا اندراج، سرمایہ اور منافع کا حصہ خودکار ایڈجسٹ ہوگا</p>
+                        </div>
+                        <select id="partnerCountSelect" onchange="renderDynamicPartners(this.value)" class="border border-emerald-400 bg-white font-bold rounded-xl p-2.5 text-xs focus:outline-emerald-600 font-sans shadow-sm">
+                            <option value="2">2 Partners (دو شرکاء)</option>
+                            <option value="3">3 Partners (تین شرکاء)</option>
+                            <option value="4">4 Partners (چار شرکاء)</option>
+                            <option value="5">5 Partners (پانچ شرکاء)</option>
+                            <option value="6">6 Partners (چھ شرکاء)</option>
+                        </select>
+                    </div>
+
+                    <div id="dynamicPartnersList" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+
+                    <div class="mt-4 p-3 bg-white border border-emerald-200 rounded-xl flex items-center justify-between font-sans text-xs">
+                        <span id="lblTotalShare" class="font-bold text-slate-700">کل منافع و نقصان کی تقسیم (Total % Sum):</span>
+                        <span id="totalPercentDisplay" class="font-bold text-sm text-emerald-700">100%</span>
+                    </div>
+                </div>
+
+                <div id="specificFieldsWrapper" class="border border-sky-200 bg-sky-50/40 rounded-xl p-5">
+                    <h3 id="secParticularsHeading" class="font-bold text-base text-sky-950 border-b border-sky-200 pb-2 mb-4">تفصیلاتِ معاہدہ (مخصوص شرائط و کوائف)</h3>
+                    <div id="dynamicFieldsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+                </div>
+
+                <div class="border border-amber-300 bg-amber-50/40 rounded-xl p-5">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-amber-200 pb-3 mb-4 gap-2">
+                        <div>
+                            <h3 id="secClausesHeading" class="font-bold text-base text-amber-950">معاہدے کی تمام شرائط (ضرورت کے مطابق ترمیم کریں)</h3>
+                            <p id="secClausesSub" class="text-xs text-slate-500 mt-0.5">ہر شرط کو براہِ راست ایڈٹ یا ڈیلیٹ کیا جا سکتا ہے</p>
+                        </div>
+                        <button type="button" onclick="addNewBlankClause()" id="btnAddNewClause" class="text-xs bg-amber-200 hover:bg-amber-300 text-amber-950 font-bold px-4 py-2 rounded-lg transition shadow-sm font-sans whitespace-nowrap">
+                            + نئی شرط شامل کریں
+                        </button>
+                    </div>
+                    <div id="clausesListContainer" class="space-y-3 font-sans"></div>
+                </div>
+
+                <div id="standardPartiesSection" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="border border-slate-200 rounded-xl p-5 bg-slate-50/70 shadow-sm">
+                        <h3 id="p1TitleLabel" class="font-bold text-base text-slate-900 border-b border-slate-200 pb-2 mb-4">کوائف فریق اول</h3>
+                        <div class="space-y-3 font-sans">
+                            <input type="text" name="p1_name" value="محمد احمد خان" placeholder="مکمل نام" required class="w-full border rounded-lg p-2.5 text-sm">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <input type="text" name="p1_father" value="عبدالرشید خان" placeholder="ولدیت" required class="w-full border rounded-lg p-2.5 text-sm">
+                                <input type="text" name="p1_cnic" value="37405-1111111-1" placeholder="شناختی کارڈ" required class="w-full border rounded-lg p-2.5 text-sm font-mono text-left">
+                            </div>
+                            <input type="text" name="p1_address" value="مکان نمبر 45، گلی نمبر 3، اسلام آباد" placeholder="رہائشی پتہ" required class="w-full border rounded-lg p-2.5 text-sm">
+                            <input type="text" id="p1RoleInput" name="p1_role" value="فریق اول" required class="w-full border border-emerald-300 rounded-lg p-2.5 text-sm font-bold bg-emerald-50/50">
+                        </div>
+                    </div>
+
+                    <div class="border border-slate-200 rounded-xl p-5 bg-slate-50/70 shadow-sm">
+                        <h3 id="p2TitleLabel" class="font-bold text-base text-slate-900 border-b border-slate-200 pb-2 mb-4">کوائف فریق دوم</h3>
+                        <div class="space-y-3 font-sans">
+                            <input type="text" name="p2_name" value="محمد طارق خان" placeholder="مکمل نام" required class="w-full border rounded-lg p-2.5 text-sm">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <input type="text" name="p2_father" value="عبدالرشید خان" placeholder="ولدیت" required class="w-full border rounded-lg p-2.5 text-sm">
+                                <input type="text" name="p2_cnic" value="37405-2222222-2" placeholder="شناختی کارڈ" required class="w-full border rounded-lg p-2.5 text-sm font-mono text-left">
+                            </div>
+                            <input type="text" name="p2_address" value="مکان نمبر 45، گلی نمبر 3، اسلام آباد" placeholder="رہائشی پتہ" required class="w-full border rounded-lg p-2.5 text-sm">
+                            <input type="text" id="p2RoleInput" name="p2_role" value="فریق دوم" required class="w-full border border-emerald-300 rounded-lg p-2.5 text-sm font-bold bg-emerald-50/50">
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" id="btnSubmitForm" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-4 px-6 rounded-xl shadow-lg hover:shadow-xl text-lg transition duration-200 flex items-center justify-center gap-3">
+                    <span>🔍</span>
+                    <span id="btnSubmitFormText">پیش منظر دیکھیں و توثیق کروائیں</span>
+                </button>
+            </form>
+        </div>
+    </main>
+    {% endif %}
+
+    <!-- Modal 1: Watermarked Preview & WhatsApp Share & Deposit Window -->
+    <div id="paymentModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-4xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <div>
+                    <h3 class="font-bold text-lg text-slate-900">دستاویز کا پیش منظر و رسید جمع کروانے کا طریقہ</h3>
+                    <p class="text-xs text-slate-500 font-sans">معاہدہ محفوظ ہو چکا ہے۔ آپ اسے دوسری پارٹی کو واٹس ایپ پر بھیج کر پیشگی چیک کروا سکتے ہیں۔</p>
+                </div>
+                <button type="button" onclick="closeModal('paymentModal')" class="text-slate-400 hover:text-slate-600 font-bold text-2xl">&times;</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Left: Instant Preview & WhatsApp Button -->
+                <div class="space-y-3 flex flex-col">
+                    <div class="border rounded-xl overflow-hidden bg-slate-50 flex flex-col h-[380px]">
+                        <span class="text-xs font-bold bg-slate-200 p-2 text-center text-slate-700 font-sans">فوری لائیو پیش منظر (UNPAID DRAFT)</span>
+                        <iframe id="previewIframe" src="" class="w-full flex-1 border-0"></iframe>
+                    </div>
+
+                    <button type="button" onclick="shareDraftOnWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-sm font-sans">
+                        <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.771-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.044c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.043.072.043.419-.101.824z"/></svg>
+                        <span>دوسری پارٹی کو واٹس ایپ پر ڈرافٹ دکھائیں (WhatsApp Share)</span>
+                    </button>
+                </div>
+
+                <!-- Right: Deposit & Upload Section -->
+                <div class="space-y-4 font-sans text-xs">
+                    <div class="bg-emerald-50 border border-emerald-300 p-4 rounded-xl space-y-2">
+                        <strong class="text-emerald-950 block text-sm">ادائیگی بذریعہ ایزی پیسہ / نیا پے:</strong>
+                        <div class="p-2 bg-white rounded border border-emerald-200">
+                            <span class="text-slate-500 block">اکاؤنٹ ٹائٹل:</span>
+                            <strong class="text-slate-900 text-sm">Mustafa Imran (StampSahulat)</strong>
+                        </div>
+                        <div class="p-2 bg-white rounded border border-emerald-200">
+                            <span class="text-slate-500 block">EasyPaisa / NayaPay نمبر:</span>
+                            <strong class="text-emerald-800 text-sm font-mono">0340-0013305</strong>
+                        </div>
+                        <div class="p-2 bg-white rounded border border-emerald-200">
+                            <span class="text-slate-500 block">پلیٹ فارم فیس:</span>
+                            <strong class="text-emerald-800 text-base font-bold">500 روپے (Rs. 500 Only)</strong>
+                        </div>
+                    </div>
+
+                    <div id="slipUploadSection" class="border border-slate-300 p-4 rounded-xl bg-slate-50 space-y-3">
+                        <strong class="block text-slate-800 text-xs">ادائیگی کی ٹرانزیکشن رسید (Screenshot) منسلک کریں:</strong>
+                        <input type="file" id="slipFileInput" accept="image/*" class="w-full border bg-white p-2 rounded-lg text-xs">
+                        <button type="button" onclick="submitPaymentSlip()" id="btnUploadSlip" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl transition">
+                            رسید جمع کروائیں (AI خودکار تصدیق)
+                        </button>
+                    </div>
+
+                    <div id="postSubmissionNotice" class="hidden bg-amber-50 border border-amber-300 p-4 rounded-xl space-y-2">
+                        <strong class="text-amber-900 block text-sm">رسید موصول ہو گئی ہے!</strong>
+                        <p class="text-slate-700 leading-relaxed text-xs">
+                            سسٹم نے آپ کی رسید کی جانچ کر لی ہے۔ ایڈمن تصدیق میں عام طور پر <strong>1 گھنٹہ</strong> لگتا ہے، جس کے بعد آپ کے <strong>محفوظ ریکارڈ (History)</strong> میں کلین پرنٹ بٹن فعال ہو جائے گا۔
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Business Membership Upload Modal -->
+    <div id="bizSubModal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-4 font-sans text-xs">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-bold text-sm text-slate-900">بزنس ممبرشپ پلان (5,000 روپے / 60 پرنٹس)</h3>
+                <button type="button" onclick="closeModal('bizSubModal')" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+            </div>
+            <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl space-y-1.5">
+                <span class="text-slate-500 block">اکاؤنٹ: 0340-0013305 (Mustafa Imran)</span>
+                <span class="text-emerald-900 font-bold block">رقم: 5,000 روپے (30 دن / 60 پرنٹس کوٹہ)</span>
+            </div>
+            <div>
+                <label class="block font-bold text-slate-700 mb-1">5,000 روپے کی ادائیگی کا اسکرین شاٹ:</label>
+                <input type="file" id="bizSlipInput" accept="image/*" class="w-full border p-2 rounded-lg">
+            </div>
+            <button type="button" onclick="submitBizSubSlip()" id="btnUploadBizSub" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-2.5 rounded-xl transition">
+                ممبرشپ رسید جمع کروائیں
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal 3: Terms of Service -->
+    <div id="termsModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[85vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                <h3 class="font-bold text-lg text-slate-900">قوانین و ضوابط و قانونی ڈس کلیمر</h3>
+                <button type="button" onclick="closeModal('termsModal')" class="text-slate-400 hover:text-slate-600 font-bold text-xl">&times;</button>
+            </div>
+            
+            <div class="space-y-4 text-xs font-sans leading-relaxed text-slate-700 text-justify">
+                <p><strong>1. ڈیجیٹل ڈرافٹنگ پلیٹ فارم:</strong> StampSahulat صرف عدالتی دستاویزات کا مسودہ (Drafting) خودکار طریقے سے تیار کرنے کی تکنیکی سہولت ہے۔ یہ کوئی سرکاری ادارہ، کچہری یا بینک نہیں ہے۔</p>
+                <p><strong>2. درستگی معلومات:</strong> صارف اس بات کا اقرار کرتا ہے کہ درج کیے گئے تمام شناختی کارڈ، نام اور کوائف 100% درست اور قانونی ہیں۔ کسی بھی غلط بیانی کی ذمہ داری صارف پر ہوگی۔</p>
+                <p><strong>3. فراڈ اور جعلی دستاویزات:</strong> کسی بھی چوری شدہ گاڑی، جعلی جائیداد یا غلط شناختی کارڈ کا اندراج قانوناً سنگین جرم ہے۔ کسی بھی عدالتی تنازعے میں StampSahulat فریق نہیں بنے گی۔</p>
+                <p><strong>4. سرکاری اسٹامپ ڈیوٹی:</strong> ہماری فیس صرف ڈیجیٹل ڈرافٹنگ کی ہے۔ حکومت کی مقررہ اسٹامپ ڈیوٹی (ای-اسٹامپ) صارف بذاتِ خود بینک میں جمع کروانے کا پابند ہے۔</p>
+            </div>
+
+            <div class="mt-6 border-t pt-3 text-left">
+                <button type="button" onclick="closeModal('termsModal')" class="bg-emerald-700 text-white px-5 py-2 rounded-xl text-xs font-bold hover:bg-emerald-800">
+                    میں نے پڑھ لیا ہے اور متفق ہوں
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Secret Admin Passcode Modal -->
+    <div id="secretAdminModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xs w-full p-6 shadow-2xl text-center">
+            <div class="w-10 h-10 mx-auto rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center mb-4 text-slate-400">
+                🔒
+            </div>
+            <form onsubmit="handleSecretAdminSubmit(event)" class="space-y-4">
+                <input type="password" id="secretPinInput" maxlength="8" autocomplete="off" 
+                       class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-center text-lg text-emerald-400 font-mono tracking-widest focus:outline-none focus:border-emerald-600">
+                <button type="submit" id="btnAdminVerify" class="w-full bg-emerald-800 hover:bg-emerald-700 text-white font-mono text-xs py-2.5 rounded-xl transition">
+                    Access Terminal
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        let currentLang = 'ur';
+        let currentDraftRecordId = null;
+        let currentDraftTitle = "";
+
+        function openModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('modal-active');
+        }
+
+        function closeModal(id) {
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('modal-active');
+        }
+
+        function shareDraftOnWhatsApp() {
+            if (!currentDraftRecordId) return;
+            const previewUrl = window.location.origin + "/preview-html/" + currentDraftRecordId;
+            let msg = "";
+            if (currentLang === 'ur') {
+                msg = `السلام علیکم! میں نے اسٹامپ سہولت پر ہمارا قانونی معاہدہ (${currentDraftTitle}) ڈرافٹ کیا ہے۔ اسٹامپ پیپر پر پرنٹ نکلوانے سے پہلے اس لنک پر کلک کر کے تمام شرائط چیک کر لیں:\n\n${previewUrl}`;
+            } else {
+                msg = `Assalam-o-Alaikum! I have drafted our legal agreement (${currentDraftTitle}) on StampSahulat. Before printing on stamp paper, please review the live draft clauses here:\n\n${previewUrl}`;
+            }
+            const waUrl = "https://api.whatsapp.com/send?text=" + encodeURIComponent(msg);
+            window.open(waUrl, '_blank');
+        }
+
+        document.getElementById('secretAdminTrigger').addEventListener('dblclick', function() {
+            document.getElementById('secretPinInput').value = '';
+            openModal('secretAdminModal');
+            setTimeout(() => document.getElementById('secretPinInput').focus(), 100);
+        });
+
+        async function handleSecretAdminSubmit(e) {
+            e.preventDefault();
+            const pin = document.getElementById('secretPinInput').value.trim();
+            const btn = document.getElementById('btnAdminVerify');
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/admin-verify', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: pin })
+                });
+                if (res.ok) {
+                    window.location.href = '/system-control-3284';
+                } else {
+                    alert("رسائی مسترد کر دی گئی!");
+                    closeModal('secretAdminModal');
+                }
+            } catch (err) {
+                closeModal('secretAdminModal');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        function switchLang(lang) {
+            currentLang = lang;
+            const root = document.getElementById('htmlRoot');
+            const btnEn = document.getElementById('btnLangEn');
+            const btnUr = document.getElementById('btnLangUr');
+            const formLang = document.getElementById('formLangInput');
+            if (formLang) formLang.value = lang;
+
+            if (lang === 'ur') {
+                root.setAttribute('dir', 'rtl');
+                document.body.className = "bg-slate-100 min-h-screen text-slate-800 font-urdu antialiased";
+                btnUr.className = "px-3 py-1 rounded-lg font-bold transition bg-white shadow text-emerald-800";
+                btnEn.className = "px-3 py-1 rounded-lg font-bold transition text-slate-600";
+                
+                const nw = document.getElementById('navLinkWhy'); if (nw) nw.innerText = "ہمیں کیوں چنیں؟";
+                const nh = document.getElementById('navLinkHow'); if (nh) nh.innerText = "طریقہ کار";
+                const np = document.getElementById('navLinkPricing'); if (np) np.innerText = "پلانز و فیس";
+                const nn = document.getElementById('navLinkNotice'); if (nn) nn.innerText = "قانونی وضاحت";
+
+                const hb = document.getElementById('heroBadgeText'); if (hb) hb.innerText = "پاکستان کا پہلا خودکار ڈیجیٹل قانونی پورٹل";
+                const hh = document.getElementById('heroHeading'); if (hh) hh.innerText = "مہنگے پیٹرول، تپتی دھوپ اور کچہری کے چکروں سے بچیں—معاہدہ آن لائن تیار کریں!";
+                const hs = document.getElementById('heroSubHeading'); if (hs) hs.innerText = "آج کے مہنگے پیٹرول میں کچہری جانے، پارکنگ ڈھونڈنے اور منشی کے پاس گھنٹوں بیٹھنے میں 800 روپے اور آدھا دن ضائع کرنے کی ضرورت نہیں۔ گھر یا دکان میں بیٹھ کر موبائل پر اپنے معاہدے کا پرفیکٹ مسودہ تیار کریں، دوسری پارٹی کو واٹس ایپ پر دکھا کر مطمئن کریں اور پھر سیدھا پرنٹ نکالیں۔";
+                const hst = document.getElementById('headerSubText'); if (hst) hst.innerText = "پاکستان کا پہلا خودکار قانونی ڈرافٹنگ پورٹل";
+
+                const p1 = document.getElementById('pillar1Title'); if (p1) p1.innerText = "پیٹرول و وقت کی بچت";
+                const p1s = document.getElementById('pillar1Sub'); if (p1s) p1s.innerText = "گھر بیٹھے 60 سیکنڈز";
+                const p2 = document.getElementById('pillar2Title'); if (p2) p2.innerText = "پیشگی معائنہ";
+                const p2s = document.getElementById('pillar2Sub'); if (p2s) p2s.innerText = "دوسری پارٹی کو شیئر کریں";
+                const p3 = document.getElementById('pillar3Title'); if (p3) p3.innerText = "صفر پیپر ضیاع";
+                const p3s = document.getElementById('pillar3Sub'); if (p3s) p3s.innerText = "غلطی کا کوئی خدشہ نہیں";
+
+                const lat = document.getElementById('lblAccType'); if (lat) lat.innerText = "اکاؤنٹ کی قسم منتخب کریں:";
+                const optP = document.getElementById('optPersonalTitle'); if (optP) optP.innerText = "ذاتی استعمال";
+                const optPS = document.getElementById('optPersonalSub'); if (optPS) optPS.innerText = "500 روپے فی دستاویز";
+                const optB = document.getElementById('optBizTitle'); if (optB) optB.innerText = "بزنس / شو روم";
+                const optBS = document.getElementById('optBizSub'); if (optBS) optBS.innerText = "5,000/ماہ (60 پرنٹس)";
+
+                const lrn = document.getElementById('lblRegName'); if (lrn) lrn.innerText = "مکمل نام یا کاروباری نام:";
+                const lre = document.getElementById('lblRegEmail'); if (lre) lre.innerText = "ای میل ایڈریس:";
+                const lrp = document.getElementById('lblRegPhone'); if (lrp) lrp.innerText = "موبائل / واٹس ایپ نمبر:";
+                const lrps = document.getElementById('lblRegPass'); if (lrps) lrps.innerText = "پاس ورڈ بنائیں:";
+                const bfr = document.getElementById('btnFrontReg'); if (bfr) bfr.innerText = "اکاؤنٹ بنائیں و مسودہ تیار کریں";
+
+                const sbt = document.getElementById('secBadgeTruth'); if (sbt) sbt.innerText = "شفاف قانونی رہنمائی";
+                const stt = document.getElementById('secTitleTruth'); if (stt) stt.innerText = "اسٹامپ آفس کے چکروں سے پہلے پورٹل کے استعمال کا اصل فائدہ";
+                const sst = document.getElementById('secSubTruth'); if (sst) sst.innerText = "کسی بھی غلط فہمی سے پاک: پورٹل کا مقصد آپ کا وقت، پیٹرول اور مہنگے اسٹامپ پیپر کو ضائع ہونے سے بچانا ہے۔";
+
+                const a1t = document.getElementById('adv1Title'); if (a1t) a1t.innerText = "پیشگی ڈیجیٹل معائنہ";
+                const a1d = document.getElementById('adv1Desc'); if (a1d) a1d.innerText = "کچہری جا کر اسٹامپ خریدنے سے پہلے، اپنے موبائل پر مکمل قانونی ڈرافٹ تیار کر کے دوسری پارٹی کو واٹس ایپ پر دکھائیں تاکہ دونوں فریق تمام شرائط پر مکمل مطمئن ہو جائیں۔";
+                const a2t = document.getElementById('adv2Title'); if (a2t) a2t.innerText = "مہنگے اسٹامپ کا صفر ضیاع";
+                const a2d = document.getElementById('adv2Desc'); if (a2d) a2d.innerText = "عام طور پر ٹائپنگ کی معمولی غلطی پر 1,200 یا 3,000 روپے کا سرکاری اسٹامپ کینسل ہو جاتا ہے۔ یہاں غلطی کے امکانات صفر ہیں کیونکہ سب کچھ پہلے سے چیک ہو جاتا ہے۔";
+                const a3t = document.getElementById('adv3Title'); if (a3t) a3t.innerText = "سنگل پیج کورٹ سیٹنگ";
+                const a3d = document.getElementById('adv3Desc'); if (a3d) a3d.innerText = "اوپر سرکاری نوٹ کے لیے 3.4 انچ اور ای-اسٹامپ کے لیے 1.8 انچ خالی جگہ سافٹ ویئر خودکار چھوڑتا ہے تاکہ آپ کا پرنٹر تحریر کو بالکل نوٹ کے نیچے سے قانونی ترتیب میں پرنٹ کرے۔";
+
+                const bh = document.getElementById('badgeHow'); if (bh) bh.innerText = "آسان 3 مراحل";
+                const th = document.getElementById('titleHow'); if (th) th.innerText = "یہ پورٹل کس طرح کام کرتا ہے؟";
+                const s1t = document.getElementById('step1Title'); if (s1t) s1t.innerText = "موبائل پر ڈرافٹ تیار کریں";
+                const s1d = document.getElementById('step1Desc'); if (s1d) s1d.innerText = "فریقین کے نام، شناختی کارڈ اور مخصوص شرائط درج کریں اور لائیو پیش منظر دیکھیں۔";
+                const s2t = document.getElementById('step2Title'); if (s2t) s2t.innerText = "دوسری پارٹی سے تصدیق";
+                const s2d = document.getElementById('step2Desc'); if (s2d) s2d.innerText = "اسٹامپ خریدنے سے پہلے مسودہ دوسری پارٹی کو واٹس ایپ پر شیئر کریں اور باہمی رضامندی لیں۔";
+                const s3t = document.getElementById('step3Title'); if (s3t) s3t.innerText = "پرنٹ و قانونی توثیق";
+                const s3d = document.getElementById('step3Desc'); if (s3d) s3d.innerText = "QR کوڈ والا کلین پی ڈی ایف ڈاؤن لوڈ کر کے اپنے اسٹامپ پیپر پر پرنٹ کریں اور اوتھ کمشنر سے دستخط کروائیں۔";
+
+                const bp = document.getElementById('badgePricing'); if (bp) bp.innerText = "فیس و سبسکرپشن";
+                const plt = document.getElementById('plansTitle'); if (plt) plt.innerText = "ہمارے دو شفاف پلانز:";
+                const cpb = document.getElementById('cardPersonalBadge'); if (cpb) cpb.innerText = "ذاتی استعمال (Personal)";
+                const cpt = document.getElementById('cardPersonalTitle'); if (cpt) cpt.innerText = "عام شہریوں کے لیے";
+                const cpd = document.getElementById('cardPersonalDesc'); if (cpd) cpd.innerText = "اگر آپ کبھی کبھار کوئی گاڑی، مکان کا کرایہ نامہ یا بیعانہ بنا رہے ہیں۔";
+                const cpp = document.getElementById('cardPersonalPer'); if (cpp) cpp.innerText = "/ فی دستاویز";
+                const pf1 = document.getElementById('pFeat1'); if (pf1) pf1.innerText = "✓ سنگل ڈاکومنٹ لائیو پیش منظر";
+                const pf2 = document.getElementById('pFeat2'); if (pf2) pf2.innerText = "✓ عدالتی معیار کا کسٹم مسودہ";
+                const pf3 = document.getElementById('pFeat3'); if (pf3) pf3.innerText = "✓ QR کوڈ تصدیق شدہ کلین پی ڈی ایف";
+
+                const cbb = document.getElementById('cardBizBadge'); if (cbb) cbb.innerText = "بزنس پاس (Showrooms & Dealers)";
+                const cbt = document.getElementById('cardBizTitle'); if (cbt) cbt.innerText = "کاروباری اداروں و ڈیلرز کے لیے";
+                const cbd = document.getElementById('cardBizDesc'); if (cbd) cbd.innerText = "پراپرٹی ڈیلرز، کار شو رومز، رینٹ اے کار اور بلڈرز کے باقاعدہ استعمال کے لیے۔";
+                const cbp = document.getElementById('cardBizPer'); if (cbp) cbp.innerText = "/ 30 دن کی ممبرشپ";
+                const bf1 = document.getElementById('bFeat1'); if (bf1) bf1.innerText = "★ 30 دن کی میعاد (ماہانہ 60 پرنٹس کا کوٹہ)";
+                const bf2 = document.getElementById('bFeat2'); if (bf2) bf2.innerText = "★ منصفانہ استعمال: روزانہ زیادہ سے زیادہ 2 پرنٹس";
+                const bf3 = document.getElementById('bFeat3'); if (bf3) bf3.innerText = "★ فی دستاویز فیس سے نجات، فوری کلین ڈاؤن لوڈ";
+
+                const brt = document.getElementById('boxRealityTitle'); if (brt) brt.innerText = "قانونی وضاحت برائے اسٹامپ ڈیوٹی و اوتھ کمشنر:";
+                const brd = document.getElementById('boxRealityDesc'); if (brd) brd.innerText = "StampSahulat ایک خودکار ڈرافٹنگ سافٹ ویئر ہے۔ حکومت کی مقررہ اسٹامپ ڈیوٹی اور اوتھ کمشنر کی باقاعدہ تصدیق آپ کو اپنے متعلقہ ضلع کے مروجہ قوانین کے مطابق ہی کروانی ہوتی ہے۔ ہمارا پلیٹ فارم آپ کو وکیلوں اور منشیوں کے پاس گھنٹوں بیٹھ کر تحریر بنوانے کے جھنجھٹ سے مکمل آزاد کرتا ہے۔";
+
+                const dbt = document.getElementById('dateBannerText'); if (dbt) dbt.innerText = "تاریخِ تحریر معاہدہ (المرقوم بتاریخ خودکار عدالتی اندراج):";
+                const dv = document.getElementById('dateValue'); if (dv) dv.innerText = "{{ today_urdu_date }}";
+                const pth = document.getElementById('paperTypeHeading'); if (pth) pth.innerText = "اسٹامپ پیپر کی نوعیت منتخب کریں:";
+                const optPh = document.getElementById('optPhysTitle'); if (optPh) optPh.innerText = "سرکاری سبز اسٹامپ پیپر (نوٹ والا)";
+                const optPhS = document.getElementById('optPhysSub'); if (optPhS) optPhS.innerText = "اوپر 3.4 انچ خالی جگہ پرنٹنگ کے لیے محفوظ رہے گی";
+                const optEs = document.getElementById('optEstampTitle'); if (optEs) optEs.innerText = "ای-اسٹامپ پیپر (E-Stamp Punjab/Sindh/KP)";
+                const optEsS = document.getElementById('optEstampSub'); if (optEsS) optEsS.innerText = "اوپر 1.8 انچ خالی جگہ ای-اسٹامپ بارکوڈ و ہیڈر کے لیے محفوظ رہے گی";
+
+                const lcat = document.getElementById('lblCategory'); if (lcat) lcat.innerText = "دستاویز کی کیٹیگری (فلٹر):";
+                const ltem = document.getElementById('lblTemplate'); if (ltem) ltem.innerText = "معاہدہ / دستاویز کی قسم منتخب کریں:";
+                const ph = document.getElementById('partnerHeading'); if (ph) ph.innerText = "شراکت داروں (Partners) کی کل تعداد منتخب کریں:";
+                const ps = document.getElementById('partnerSub'); if (ps) ps.innerText = "2 سے لے کر 6 شرکاء کا اندراج، سرمایہ اور منافع کا حصہ خودکار ایڈجسٹ ہوگا";
+                const lts = document.getElementById('lblTotalShare'); if (lts) lts.innerText = "کل منافع و نقصان کی تقسیم (Total % Sum):";
+
+                const sph = document.getElementById('secParticularsHeading'); if (sph) sph.innerText = "تفصیلاتِ معاہدہ (مخصوص شرائط و کوائف)";
+                const sch = document.getElementById('secClausesHeading'); if (sch) sch.innerText = "معاہدے کی تمام شرائط (ضرورت کے مطابق ترمیم کریں)";
+                const scs = document.getElementById('secClausesSub'); if (scs) scs.innerText = "ہر شرط کو براہِ راست ایڈٹ یا ڈیلیٹ کیا جا سکتا ہے";
+                const bac = document.getElementById('btnAddNewClause'); if (bac) bac.innerText = "+ نئی شرط شامل کریں";
+                const bsf = document.getElementById('btnSubmitFormText'); if (bsf) bsf.innerText = "پیش منظر دیکھیں و توثیق کروائیں";
+            } else {
+                root.setAttribute('dir', 'ltr');
+                document.body.className = "bg-slate-100 min-h-screen text-slate-800 font-en antialiased";
+                btnEn.className = "px-3 py-1 rounded-lg font-bold transition bg-white shadow text-emerald-800";
+                btnUr.className = "px-3 py-1 rounded-lg font-bold transition text-slate-600";
+
+                const nw = document.getElementById('navLinkWhy'); if (nw) nw.innerText = "Why Choose Us";
+                const nh = document.getElementById('navLinkHow'); if (nh) nh.innerText = "How It Works";
+                const np = document.getElementById('navLinkPricing'); if (np) np.innerText = "Pricing Plans";
+                const nn = document.getElementById('navLinkNotice'); if (nn) nn.innerText = "Legal Notice";
+
+                const hb = document.getElementById('heroBadgeText'); if (hb) hb.innerText = "Pakistan's 1st Automated Legal Stamp Drafting Portal";
+                const hh = document.getElementById('heroHeading'); if (hh) hh.innerText = "Save Expensive Petrol & Avoid Court Queues—Draft Agreements Online!";
+                const hs = document.getElementById('heroSubHeading'); if (hs) hs.innerText = "With high fuel prices, don't waste Rs. 800+ on petrol, parking, and waiting in crowded legal offices. Draft court-standard legal deeds from your home or office in 60 seconds, verify terms with the other party on WhatsApp, and print perfectly on stamp paper.";
+                const hst = document.getElementById('headerSubText'); if (hst) hst.innerText = "Pakistan's 1st Automated Legal Drafting Portal";
+
+                const p1 = document.getElementById('pillar1Title'); if (p1) p1.innerText = "Save Fuel & Hours";
+                const p1s = document.getElementById('pillar1Sub'); if (p1s) p1s.innerText = "Ready in 60s from mobile";
+                const p2 = document.getElementById('pillar2Title'); if (p2) p2.innerText = "Pre-Execution Review";
+                const p2s = document.getElementById('pillar2Sub'); if (p2s) p2s.innerText = "Share with 2nd party first";
+                const p3 = document.getElementById('pillar3Title'); if (p3) p3.innerText = "Zero Paper Loss";
+                const p3s = document.getElementById('pillar3Sub'); if (p3s) p3s.innerText = "No voided stamp papers";
+
+                const lat = document.getElementById('lblAccType'); if (lat) lat.innerText = "Select Account Tier:";
+                const optP = document.getElementById('optPersonalTitle'); if (optP) optP.innerText = "Personal Use";
+                const optPS = document.getElementById('optPersonalSub'); if (optPS) optPS.innerText = "Rs. 500 per document";
+                const optB = document.getElementById('optBizTitle'); if (optB) optB.innerText = "Business / Dealership";
+                const optBS = document.getElementById('optBizSub'); if (optBS) optBS.innerText = "Rs. 5,000/mo (60 prints)";
+
+                const lrn = document.getElementById('lblRegName'); if (lrn) lrn.innerText = "Full Legal Name or Business Name:";
+                const lre = document.getElementById('lblRegEmail'); if (lre) lre.innerText = "Email Address:";
+                const lrp = document.getElementById('lblRegPhone'); if (lrp) lrp.innerText = "Mobile / WhatsApp Number:";
+                const lrps = document.getElementById('lblRegPass'); if (lrps) lrps.innerText = "Create Secure Password:";
+                const bfr = document.getElementById('btnFrontReg'); if (bfr) bfr.innerText = "Create Account & Start Drafting";
+
+                const sbt = document.getElementById('secBadgeTruth'); if (sbt) sbt.innerText = "Transparent Legal Guidance";
+                const stt = document.getElementById('secTitleTruth'); if (stt) stt.innerText = "Why Draft on StampSahulat Before Buying Stamp Paper?";
+                const sst = document.getElementById('secSubTruth'); if (sst) sst.innerText = "Honest facts: Our platform saves your petrol, time, and prevents costly non-judicial stamp papers from getting voided.";
+
+                const a1t = document.getElementById('adv1Title'); if (a1t) a1t.innerText = "Pre-Execution Digital Review";
+                const a1d = document.getElementById('adv1Desc'); if (a1d) a1d.innerText = "Before purchasing stamp paper, draft your deed on mobile and share with the second party on WhatsApp to mutually confirm all terms without dispute.";
+                const a2t = document.getElementById('adv2Title'); if (a2t) a2t.innerText = "Zero Stamp Paper Wastage";
+                const a2d = document.getElementById('adv2Desc'); if (a2d) a2d.innerText = "Clerical typing mistakes void expensive Rs. 1,200 or 3,000 stamp papers in court. Our digital pre-review ensures zero financial loss.";
+                const a3t = document.getElementById('adv3Title'); if (a3t) a3t.innerText = "Single Page Court Alignment";
+                const a3d = document.getElementById('adv3Desc'); if (a3d) a3d.innerText = "Preserves 3.4 inches top blank margin for physical notes or safe 1.8 inches for provincial e-stamp headers/barcodes.";
+
+                const bh = document.getElementById('badgeHow'); if (bh) bh.innerText = "Easy 3 Steps";
+                const th = document.getElementById('titleHow'); if (th) th.innerText = "How Does StampSahulat Work?";
+                const s1t = document.getElementById('step1Title'); if (s1t) s1t.innerText = "Draft Online from Mobile";
+                const s1d = document.getElementById('step1Desc'); if (s1d) s1d.innerText = "Enter parties details, CNIC numbers, and custom clauses with instant live preview.";
+                const s2t = document.getElementById('step2Title'); if (s2t) s2t.innerText = "Verify with Other Party";
+                const s2d = document.getElementById('step2Desc'); if (s2d) s2d.innerText = "Share the pre-draft with the other party on WhatsApp to achieve mutual consent before purchasing physical stamp.";
+                const s3t = document.getElementById('step3Title'); if (s3t) s3t.innerText = "Print & Official Attestation";
+                const s3d = document.getElementById('step3Desc'); if (s3d) s3d.innerText = "Download QR-verified clean PDF, print directly onto non-judicial stamp paper, and sign before Oath Commissioner.";
+
+                const bp = document.getElementById('badgePricing'); if (bp) bp.innerText = "Plans & Pricing";
+                const plt = document.getElementById('plansTitle'); if (plt) plt.innerText = "Transparent Pricing Tiers:";
+                const cpb = document.getElementById('cardPersonalBadge'); if (cpb) cpb.innerText = "Personal Use";
+                const cpt = document.getElementById('cardPersonalTitle'); if (cpt) cpt.innerText = "For General Citizens";
+                const cpd = document.getElementById('cardPersonalDesc'); if (cpd) cpd.innerText = "For occasional sale deeds, house tenancy agreements, or earnest money drafts.";
+                const cpp = document.getElementById('cardPersonalPer'); if (cpp) cpp.innerText = "/ per document";
+                const pf1 = document.getElementById('pFeat1'); if (pf1) pf1.innerText = "✓ Single document live review";
+                const pf2 = document.getElementById('pFeat2'); if (pf2) pf2.innerText = "✓ Certified court-standard formatting";
+                const pf3 = document.getElementById('pFeat3'); if (pf3) pf3.innerText = "✓ QR-Verified clean PDF download";
+
+                const cbb = document.getElementById('cardBizBadge'); if (cbb) cbb.innerText = "Business Pass (Showrooms & Dealers)";
+                const cbt = document.getElementById('cardBizTitle'); if (cbt) cbt.innerText = "For Commercial Businesses & Dealerships";
+                const cbd = document.getElementById('cardBizDesc'); if (cbd) cbd.innerText = "Designed for property consultants, car dealerships, rent-a-car companies, and builders.";
+                const cbp = document.getElementById('cardBizPer'); if (cbp) cbp.innerText = "/ 30 Days Membership";
+                const bf1 = document.getElementById('bFeat1'); if (bf1) bf1.innerText = "★ 30 Days Validity (Monthly quota of 60 prints)";
+                const bf2 = document.getElementById('bFeat2'); if (bf2) bf2.innerText = "★ Fair-use policy: Maximum 2 prints per day";
+                const bf3 = document.getElementById('bFeat3'); if (bf3) bf3.innerText = "★ Zero per-document fee, instant clean PDF download";
+
+                const brt = document.getElementById('boxRealityTitle'); if (brt) brt.innerText = "Legal Notice regarding Stamp Duty & Notary:";
+                const brd = document.getElementById('boxRealityDesc'); if (brd) brd.innerText = "StampSahulat is an automated legal drafting software. Official statutory stamp duty and Oath Commissioner attestation remain subject to provincial regulations. We liberate you from waiting hours in court clerks' chambers.";
+
+                const dbt = document.getElementById('dateBannerText'); if (dbt) dbt.innerText = "Date of Execution (Automated Judicial Timestamp):";
+                const dv = document.getElementById('dateValue'); if (dv) dv.innerText = "{{ today_en_date }}";
+                const pth = document.getElementById('paperTypeHeading'); if (pth) pth.innerText = "Select Stamp Paper Output Mode:";
+                const optPh = document.getElementById('optPhysTitle'); if (optPh) optPh.innerText = "Physical Green Stamp Paper (Judicial / Revenue)";
+                const optPhS = document.getElementById('optPhysSub'); if (optPhS) optPhS.innerText = "Leaves 3.4 inches top blank margin for official print";
+                const optEs = document.getElementById('optEstampTitle'); if (optEs) optEs.innerText = "E-Stamp Paper (Punjab / Sindh / KP Standard)";
+                const optEsS = document.getElementById('optEstampSub'); if (optEsS) optEsS.innerText = "Leaves 1.8 inches top blank margin for official e-Stamp header/barcode";
+
+                const lcat = document.getElementById('lblCategory'); if (lcat) lcat.innerText = "Document Category Filter:";
+                const ltem = document.getElementById('lblTemplate'); if (ltem) ltem.innerText = "Select Agreement / Deed Template:";
+                const ph = document.getElementById('partnerHeading'); if (ph) ph.innerText = "Select Total Number of Partners:";
+                const ps = document.getElementById('partnerSub'); if (ps) ps.innerText = "Auto-adjusts 2 to 6 partners details, capital & % profit split";
+                const lts = document.getElementById('lblTotalShare'); if (lts) lts.innerText = "Total Profit & Loss Share Sum:";
+
+                const sph = document.getElementById('secParticularsHeading'); if (sph) sph.innerText = "Agreement Specific Particulars & Key Terms";
+                const sch = document.getElementById('secClausesHeading'); if (sch) sch.innerText = "Agreement Legal Clauses (Inspect & Customize Terms)";
+                const scs = document.getElementById('secClausesSub'); if (scs) scs.innerText = "Every clause is directly editable to match client instructions";
+                const bac = document.getElementById('btnAddNewClause'); if (bac) bac.innerText = "+ Add Custom Clause";
+                const bsf = document.getElementById('btnSubmitFormText'); if (bsf) bsf.innerText = "Generate Live Preview & Proceed to Verification";
+            }
+
+            if (typeof populateCategories === "function") populateCategories();
+        }
+
+        function switchFrontAuth(tab) {
+            const regForm = document.getElementById('frontRegisterForm');
+            const loginForm = document.getElementById('frontLoginForm');
+            const tabReg = document.getElementById('tabRegisterBtn');
+            const tabLogin = document.getElementById('tabLoginBtn');
+
+            if (tab === 'register') {
+                regForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+                tabReg.className = "flex-1 py-2 font-bold text-emerald-800 border-b-2 border-emerald-700";
+                tabLogin.className = "flex-1 py-2 font-bold text-slate-500";
+            } else {
+                regForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                tabLogin.className = "flex-1 py-2 font-bold text-emerald-800 border-b-2 border-emerald-700";
+                tabReg.className = "flex-1 py-2 font-bold text-slate-500";
+            }
+        }
+
+        async function handleFrontRegister(e) {
+            e.preventDefault();
+            const full_name = document.getElementById('frontRegName').value.trim();
+            const email = document.getElementById('frontRegEmail').value.trim();
+            const phone = document.getElementById('frontRegPhone').value.trim();
+            const password = document.getElementById('frontRegPassword').value;
+            const account_type = document.querySelector('input[name="reg_account_type"]:checked').value;
+            const terms_agreed = document.getElementById('frontRegTerms').checked;
+            const btn = document.getElementById('btnFrontReg');
+
+            btn.disabled = true;
+            btn.innerText = currentLang === 'ur' ? "اکاؤنٹ بن رہا ہے..." : "Creating Account...";
+
+            try {
+                const res = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ full_name, email, phone, password, account_type, terms_agreed })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    window.location.reload();
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert("Server error: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = currentLang === 'ur' ? "اکاؤنٹ بنائیں و مسودہ تیار کریں" : "Create Account & Start Drafting";
+            }
+        }
+
+        async function handleFrontLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('frontLoginEmail').value.trim();
+            const password = document.getElementById('frontLoginPassword').value;
+            const btn = document.getElementById('btnFrontLogin');
+
+            btn.disabled = true;
+            btn.innerText = currentLang === 'ur' ? "لاگ ان ہو رہا ہے..." : "Authenticating...";
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    window.location.reload();
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert("Server error: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = currentLang === 'ur' ? "لاگ ان کریں" : "Sign In to Workspace";
+            }
+        }
+
+        async function submitBizSubSlip() {
+            const fileInput = document.getElementById('bizSlipInput');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("5,000 روپے کی ادائیگی کا اسکرین شاٹ سلیکٹ کریں!");
+                return;
+            }
+            const btn = document.getElementById('btnUploadBizSub');
+            btn.disabled = true;
+            btn.innerText = "رسید جمع ہو رہی ہے...";
+
+            const formData = new FormData();
+            formData.append("slip_file", fileInput.files[0]);
+
+            try {
+                const res = await fetch('/api/upload-subscription-slip', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert(data.message);
+                    closeModal('bizSubModal');
+                    window.location.reload();
+                } else {
+                    alert(data.error);
+                }
+            } catch (err) {
+                alert("Upload error: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "ممبرشپ رسید جمع کروائیں";
+            }
+        }
+
+        // Workspace Scripts
+        {% if current_user %}
+        const templatesDB = {{ all_templates | tojson }};
+        let loadedClauses = [];
+
+        const catSelect = document.getElementById('categorySelect');
+        const templateSelect = document.getElementById('templateSelect');
+        const dynamicContainer = document.getElementById('dynamicFieldsContainer');
+        const clausesListContainer = document.getElementById('clausesListContainer');
+        const finalClausesJson = document.getElementById('finalClausesJson');
+        const partnersJson = document.getElementById('partnersJson');
+        const p1TitleLabel = document.getElementById('p1TitleLabel');
+        const p2TitleLabel = document.getElementById('p2TitleLabel');
+        const p1RoleInput = document.getElementById('p1RoleInput');
+        const p2RoleInput = document.getElementById('p2RoleInput');
+
+        function renderDynamicPartners(count) {
+            const container = document.getElementById('dynamicPartnersList');
+            container.innerHTML = '';
+            const num = parseInt(count);
+            const defaultSplit = (100 / num).toFixed(0);
+
+            for (let i = 1; i <= num; i++) {
+                const card = document.createElement('div');
+                card.className = "border border-slate-200 bg-white rounded-xl p-4 shadow-sm space-y-2.5 font-sans text-xs partner-card";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b pb-1.5">
+                        <strong class="text-emerald-900 font-bold">${currentLang === 'ur' ? 'پارٹنر نمبر' : 'Partner #'} ${i}:</strong>
+                        <span class="text-[11px] text-slate-400">Partner #${i}</span>
+                    </div>
+                    <input type="text" data-field="name" value="${currentLang === 'ur' ? 'پارٹنر نمبر ' + i : 'Partner #' + i}" placeholder="Full Name" required class="w-full border rounded-lg p-2 text-xs">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" data-field="father" value="Father Name" placeholder="Father Name" required class="border rounded-lg p-2 text-xs">
+                        <input type="text" data-field="cnic" value="37405-${i}${i}${i}${i}${i}${i}${i}-${i}" placeholder="CNIC Number" required class="border rounded-lg p-2 text-xs font-mono text-left">
+                    </div>
+                    <input type="text" data-field="address" value="Sector F-${i}, Islamabad" placeholder="Address" required class="w-full border rounded-lg p-2 text-xs">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" data-field="capital" value="${1000000 * i}" placeholder="Capital (PKR)" required class="border rounded-lg p-2 text-xs">
+                        <div class="flex items-center gap-1">
+                            <input type="number" data-field="share" value="${defaultSplit}" min="1" max="100" oninput="calculateTotalShare()" required class="partner-share-input w-full border border-emerald-400 rounded-lg p-2 text-xs font-bold text-emerald-900 text-center">
+                            <span class="font-bold text-slate-500">%</span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+            calculateTotalShare();
+        }
+
+        function calculateTotalShare() {
+            const inputs = document.querySelectorAll('.partner-share-input');
+            let total = 0;
+            inputs.forEach(inp => total += parseFloat(inp.value || 0));
+            const display = document.getElementById('totalPercentDisplay');
+            if (display) {
+                display.innerText = total + "%";
+                display.className = (total === 100) ? "font-bold text-sm text-emerald-700" : "font-bold text-sm text-rose-600";
+            }
+            packPartnersJson();
+        }
+
+        function packPartnersJson() {
+            const cards = document.querySelectorAll('.partner-card');
+            if (!cards || cards.length === 0) {
+                partnersJson.value = "";
+                return;
+            }
+            const list = [];
+            cards.forEach(c => {
+                list.push({
+                    name: c.querySelector('[data-field="name"]').value.trim(),
+                    father: c.querySelector('[data-field="father"]').value.trim(),
+                    cnic: c.querySelector('[data-field="cnic"]').value.trim(),
+                    address: c.querySelector('[data-field="address"]').value.trim(),
+                    capital: c.querySelector('[data-field="capital"]').value.trim(),
+                    share: c.querySelector('[data-field="share"]').value.trim()
+                });
+            });
+            partnersJson.value = JSON.stringify(list);
+        }
+
+        function syncActiveClauses() {
+            const textareas = document.querySelectorAll('.clause-editor-textarea');
+            loadedClauses = Array.from(textareas).map(t => t.value.trim()).filter(t => t.length > 0);
+            finalClausesJson.value = JSON.stringify(loadedClauses);
+        }
+
+        function renderClausesEditor() {
+            clausesListContainer.innerHTML = '';
+            loadedClauses.forEach((clause, index) => {
+                const div = document.createElement('div');
+                div.className = "flex items-start gap-3 bg-white p-3 rounded-xl border border-slate-300 shadow-sm";
+                div.innerHTML = `
+                    <span class="text-xs font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-1 rounded-md mt-1 whitespace-nowrap">#${index + 1}</span>
+                    <textarea rows="2" oninput="syncActiveClauses()" class="clause-editor-textarea flex-1 border border-slate-200 rounded-lg p-2.5 text-xs leading-relaxed focus:outline-emerald-600">${clause}</textarea>
+                    <button type="button" onclick="deleteClause(${index})" class="text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 font-bold px-3 py-1.5 rounded-lg text-xs mt-1 transition">${currentLang === 'ur' ? 'حذف' : 'Delete'}</button>
+                `;
+                clausesListContainer.appendChild(div);
+            });
+            syncActiveClauses();
+        }
+
+        function deleteClause(index) {
+            syncActiveClauses();
+            loadedClauses.splice(index, 1);
+            renderClausesEditor();
+        }
+
+        function addNewBlankClause() {
+            syncActiveClauses();
+            loadedClauses.push(currentLang === 'ur' ? "یہ کہ " : "That ");
+            renderClausesEditor();
+        }
+
+        function updateFormFields(templateKey) {
+            const doc = templatesDB[templateKey];
+            if (!doc) return;
+
+            const partnersWrapper = document.getElementById('partnershipPartnersWrapper');
+            const standardParties = document.getElementById('standardPartiesSection');
+
+            if (templateKey === 'partnership_deed') {
+                partnersWrapper.classList.remove('hidden');
+                standardParties.classList.add('hidden');
+                renderDynamicPartners(document.getElementById('partnerCountSelect').value);
+            } else {
+                partnersWrapper.classList.add('hidden');
+                standardParties.classList.remove('hidden');
+                partnersJson.value = "";
+            }
+
+            const r1 = currentLang === 'ur' ? doc.party1_role_ur : doc.party1_role_en;
+            const r2 = currentLang === 'ur' ? doc.party2_role_ur : doc.party2_role_en;
+
+            p1TitleLabel.innerText = currentLang === 'ur' ? ("کوائف " + r1) : ("Particulars of " + r1);
+            p2TitleLabel.innerText = currentLang === 'ur' ? ("کوائف " + r2) : ("Particulars of " + r2);
+            p1RoleInput.value = r1;
+            p2RoleInput.value = r2;
+
+            dynamicContainer.innerHTML = '';
+            if (doc.fields) {
+                doc.fields.forEach(f => {
+                    const colSpan = (f.id.includes('address') || f.id.includes('details') || f.id.includes('scope')) ? 'md:col-span-2' : '';
+                    const fieldDiv = document.createElement('div');
+                    fieldDiv.className = colSpan;
+                    const lbl = currentLang === 'ur' ? f.label_ur : f.label_en;
+                    fieldDiv.innerHTML = `
+                        <label class="block text-xs font-bold text-slate-700 mb-1">${lbl}:</label>
+                        <input type="text" name="${f.id}" id="field_${f.id}" value="${f.default}" required oninput="refreshClauses('${templateKey}')" class="w-full border border-slate-300 rounded-lg p-2.5 text-sm bg-white focus:outline-emerald-600 font-sans">
+                    `;
+                    dynamicContainer.appendChild(fieldDiv);
+                });
+            }
+            refreshClauses(templateKey);
+        }
+
+        function refreshClauses(templateKey) {
+            const doc = templatesDB[templateKey];
+            if (!doc) return;
+            const currentVals = {};
+            if (doc.fields) {
+                doc.fields.forEach(f => {
+                    const el = document.getElementById(`field_${f.id}`);
+                    if (el) currentVals[f.id] = el.value;
+                });
+            }
+            const srcClauses = currentLang === 'ur' ? doc.clauses_ur : doc.clauses_en;
+            loadedClauses = srcClauses.map(raw => {
+                let replaced = raw;
+                for (const [k, v] of Object.entries(currentVals)) {
+                    replaced = replaced.replaceAll(`{${k}}`, v);
+                }
+                return replaced;
+            });
+            renderClausesEditor();
+        }
+
+        function populateCategories() {
+            if (!catSelect) return;
+            const catKey = currentLang === 'ur' ? 'category_ur' : 'category_en';
+            const cats = new Set();
+            
+            Object.values(templatesDB).forEach(d => {
+                const val = d[catKey] || d['category_ur'] || d['category_en'];
+                if (val) cats.add(val);
+            });
+
+            const currentVal = catSelect.value || 'all';
+            catSelect.innerHTML = `<option value="all">${currentLang === 'ur' ? 'تمام کیٹیگریز (All Categories)' : 'All Categories'}</option>`;
+            
+            cats.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.innerText = c;
+                catSelect.appendChild(opt);
+            });
+
+            if (currentVal && Array.from(catSelect.options).some(o => o.value === currentVal)) {
+                catSelect.value = currentVal;
+            } else {
+                catSelect.value = 'all';
+            }
+
+            filterByCategory();
+        }
+
+        function filterByCategory() {
+            if (!catSelect || !templateSelect) return;
+            const selectedCat = catSelect.value;
+            const catKey = currentLang === 'ur' ? 'category_ur' : 'category_en';
+            const titleKey = currentLang === 'ur' ? 'title_ur' : 'title_en';
+            
+            templateSelect.innerHTML = '';
+            let firstKey = null;
+
+            for (const [key, doc] of Object.entries(templatesDB)) {
+                const docCat = doc[catKey] || doc['category_ur'] || doc['category_en'];
+                if (selectedCat === 'all' || docCat === selectedCat) {
+                    const opt = document.createElement('option');
+                    opt.value = key;
+                    opt.innerText = doc[titleKey] || doc['title_ur'] || doc['title_en'] || key;
+                    templateSelect.appendChild(opt);
+                    if (!firstKey) firstKey = key;
+                }
+            }
+
+            if (firstKey) {
+                templateSelect.value = firstKey;
+                updateFormFields(firstKey);
+            }
+        }
+
+        async function handleDraftCreation(e) {
+            e.preventDefault();
+            syncActiveClauses();
+            packPartnersJson();
+
+            const btn = document.getElementById('btnSubmitForm');
+            btn.disabled = true;
+            btn.innerText = currentLang === 'ur' ? "مسودہ تیار ہو رہا ہے..." : "Compiling Judicial Draft...";
+
+            const formData = new FormData(document.getElementById('docForm'));
+
+            try {
+                const res = await fetch('/api/create-draft', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await res.json();
+
+                if (res.ok && data.success) {
+                    currentDraftRecordId = data.record_id;
+                    currentDraftTitle = data.title || "Legal Agreement";
+                    if (data.business_unlocked) {
+                        alert(currentLang === 'ur' ? "آپ کا بزنس پاس فعال ہے! کلین پرنٹ تیار ہو چکا ہے۔" : "Business Plan Active! Clean PDF downloaded.");
+                        window.open(`/download/${currentDraftRecordId}`, '_blank');
+                    } else {
+                        document.getElementById('previewIframe').src = `/preview-html/${currentDraftRecordId}`;
+                        openModal('paymentModal');
+                    }
+                } else {
+                    alert(data.error || "مسودہ محفوظ نہیں ہو سکا!");
+                }
+            } catch (err) {
+                alert("Server Connection Error: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = currentLang === 'ur' ? "پیش منظر دیکھیں و توثیق کروائیں" : "Generate Live Preview & Proceed";
+            }
+        }
+
+        async function submitPaymentSlip() {
+            if (!currentDraftRecordId) return;
+
+            const fileInput = document.getElementById('slipFileInput');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("براہ کرم پہلے ادائیگی کی رسید سلیکٹ کریں!");
+                return;
+            }
+
+            const btn = document.getElementById('btnUploadSlip');
+            btn.disabled = true;
+            btn.innerText = "AI رسید کی خودکار تصدیق کر رہا ہے...";
+
+            const formData = new FormData();
+            formData.append("slip_file", fileInput.files[0]);
+
+            try {
+                const res = await fetch(`/api/upload-slip/${currentDraftRecordId}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                if (res.ok && data.success) {
+                    document.getElementById('slipUploadSection').classList.add('hidden');
+                    document.getElementById('postSubmissionNotice').classList.remove('hidden');
+                } else {
+                    alert(data.error || "رسید مسترد کر دی گئی۔");
+                }
+            } catch (err) {
+                alert("Upload error: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "رسید جمع کروائیں (AI خودکار تصدیق)";
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            populateCategories();
+
+            // Auto-select template if referred from Programmatic SEO Page
+            const urlParams = new URLSearchParams(window.location.search);
+            const targetTemplate = urlParams.get('template');
+            if (targetTemplate && templatesDB[targetTemplate]) {
+                const tSelect = document.getElementById('templateSelect');
+                if (tSelect) {
+                    tSelect.value = targetTemplate;
+                    updateFormFields(targetTemplate);
+                }
+            }
+        });
+        {% endif %}
+    </script>
+</body>
+</html>

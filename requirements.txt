@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+jinja2
+supabase
+google-generativeai
+pillow
+qrcode
+python-multipart

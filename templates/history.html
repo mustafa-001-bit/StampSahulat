@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محفوظ شدہ قانونی دستاویزات - ریکارڈ آرکائیو</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Nastaliq Urdu', serif; }
+        input, table, button, a { font-family: ui-sans-serif, system-ui, sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 antialiased p-4 md:p-8">
+
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl border border-slate-200 p-6 md:p-8">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-slate-200 pb-5 mb-6 gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-bold text-slate-900 leading-tight">محفوظ شدہ قانونی معاہدات کا ریکارڈ</h1>
+                <p class="text-xs text-slate-500 mt-1">تلاش بذریعہ نام، شناختی کارڈ نمبر (CNIC)، یا معاہدہ کا عنوان</p>
+            </div>
+            <a href="/" class="inline-flex items-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-md whitespace-nowrap">
+                <span>+</span>
+                <span>نیا قانونی معاہدہ تیار کریں</span>
+            </a>
+        </div>
+
+        <!-- Search Box -->
+        <div class="mb-6">
+            <div class="relative">
+                <input type="text" id="searchInput" onkeyup="filterRecords()" placeholder="سرچ کریں: نام، شناختی کارڈ، یا گاڑی/پراپرٹی معاہدہ..." 
+                       class="w-full border border-slate-300 rounded-xl p-3.5 pr-10 text-sm focus:outline-emerald-600 bg-slate-50/50 focus:bg-white shadow-sm transition">
+                <span class="absolute right-3.5 top-3.5 text-slate-400">🔍</span>
+            </div>
+        </div>
+
+        <!-- Records Table -->
+        <div class="overflow-x-auto rounded-xl border border-slate-200 shadow-sm">
+            <table class="w-full border-collapse text-right text-xs">
+                <thead>
+                    <tr class="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200">
+                        <th class="p-3.5 border-l border-slate-200 text-center w-12">#</th>
+                        <th class="p-3.5 border-l border-slate-200 whitespace-nowrap">تاریخ و وقت</th>
+                        <th class="p-3.5 border-l border-slate-200">معاہدہ کا عنوان</th>
+                        <th class="p-3.5 border-l border-slate-200">فریق اول</th>
+                        <th class="p-3.5 border-l border-slate-200">فریق دوم</th>
+                        <th class="p-3.5 border-l border-slate-200 text-center">حیثیت (Status)</th>
+                        <th class="p-3.5 text-center">ایکشن</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsTbody">
+                    {% for doc in documents %}
+                    <tr class="border-b border-slate-100 hover:bg-slate-50/70 transition record-row">
+                        <td class="p-3.5 border-l border-slate-100 font-mono text-center text-slate-500">{{ doc.id }}</td>
+                        <td class="p-3.5 border-l border-slate-100 font-mono text-slate-600 whitespace-nowrap">{{ doc.created_at }}</td>
+                        <td class="p-3.5 border-l border-slate-100 font-bold text-emerald-950 search-target">{{ doc.title }}</td>
+                        <td class="p-3.5 border-l border-slate-100 search-target">
+                            <strong class="text-slate-900">{{ doc.p1_name }}</strong><br>
+                            <span class="font-mono text-slate-500 text-[11px]">{{ doc.p1_cnic }}</span>
+                        </td>
+                        <td class="p-3.5 border-l border-slate-100 search-target">
+                            <strong class="text-slate-900">{{ doc.p2_name }}</strong><br>
+                            <span class="font-mono text-slate-500 text-[11px]">{{ doc.p2_cnic }}</span>
+                        </td>
+                        <td class="p-3.5 border-l border-slate-100 text-center whitespace-nowrap">
+                            {% if doc.status == 'approved' %}
+                            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                                ✓ منظور شدہ (Approved)
+                            </span>
+                            {% elif doc.status == 'pending_approval' %}
+                            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                                ⏳ تصدیق جاری ہے (1 گھنٹہ)
+                            </span>
+                            {% elif doc.status == 'rejected' %}
+                            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                                ✕ رسید مسترد ہو گئی
+                            </span>
+                            {% else %}
+                            <span class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-slate-100 text-slate-700">
+                                فیس غیر ادا شدہ
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td class="p-3.5 text-center whitespace-nowrap">
+                            {% if doc.status == 'approved' %}
+                            <a href="/download/{{ doc.id }}" target="_blank" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-2 rounded-lg text-xs transition inline-flex items-center gap-1.5 shadow-sm">
+                                <span>🖨️</span>
+                                <span>کلین PDF ڈاؤن لوڈ</span>
+                            </a>
+                            {% else %}
+                            <span class="text-slate-400 text-xs italic">منظوری پر ان لاک ہوگا</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="p-12 text-center text-slate-400">
+                            ابھی تک کوئی دستاویز محفوظ نہیں ہوئی۔
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function filterRecords() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const rows = document.querySelectorAll('.record-row');
+
+            rows.forEach(row => {
+                const targets = row.querySelectorAll('.search-target');
+                let matched = false;
+                targets.forEach(t => {
+                    if (t.innerText.toLowerCase().includes(query)) {
+                        matched = true;
+                    }
+                });
+                row.style.display = matched ? '' : 'none';
+            });
+        }
+    </script>
+
+</body>
+</html>
